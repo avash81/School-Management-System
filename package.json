@@ -1,0 +1,49 @@
+{
+  "name": "schoolos",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "dev:local": "pnpm -r --parallel --filter ./apps/api --filter ./apps/web --filter ./apps/admin --filter ./apps/worker run dev",
+    "local:docker": "docker compose -f infrastructure/docker/docker-compose.yml up -d postgres redis minio",
+    "local:stop": "node ./scripts/stop-local-apps.mjs",
+    "local:bootstrap": "pnpm install && pnpm db:generate && pnpm local:docker && pnpm dev:local",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "pnpm --dir ./packages/database run schema:build && dotenv -e .env -- pnpm --dir ./packages/database exec prisma generate --schema ./prisma/schema.prisma",
+    "db:push": "pnpm --dir ./packages/database run schema:build && dotenv -e .env -- pnpm --dir ./packages/database exec prisma db push --schema ./prisma/schema.prisma",
+    "db:seed": "pnpm --dir ./packages/database run db:seed",
+    "prepare": "husky",
+    "commitlint": "commitlint --from HEAD~1 --to HEAD"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@eslint/js": "^9.14.0",
+    "@types/node": "^22.10.1",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
+    "dotenv-cli": "^11.0.0",
+    "eslint": "^9.14.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "turbo": "^2.3.3",
+    "typescript": "^5.6.3",
+    "vitest": "^3.0.0"
+  }
+}

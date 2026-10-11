@@ -1,0 +1,105 @@
+enum UploadStatus {
+  pending
+  processing
+  completed
+  failed
+  rejected
+}
+
+enum OCRJobStatus {
+  queued
+  processing
+  completed
+  failed
+  reviewed
+}
+
+enum ImportSessionStatus {
+  draft
+  validating
+  review
+  approved
+  imported
+  rejected
+  failed
+}
+
+model Upload {
+  id           String       @id @default(uuid())
+  schoolId     String       @map("school_id")
+  uploadedById String       @map("uploaded_by_id")
+  fileName     String       @map("file_name")
+  fileKey      String       @map("file_key")
+  contentType  String       @map("content_type")
+  sizeBytes    Int          @map("size_bytes")
+  checksum     String?
+  status       UploadStatus @default(pending)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  deletedAt    DateTime?    @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadedById])
+  @@index([schoolId, status])
+  @@map("uploads")
+}
+
+model OCRJob {
+  id          String        @id @default(uuid())
+  schoolId    String        @map("school_id")
+  uploadId    String        @map("upload_id")
+  status      OCRJobStatus  @default(queued)
+  provider    String?
+  result      Json?
+  confidence  Float?
+  error       String?
+  startedAt   DateTime?     @map("started_at")
+  completedAt DateTime?     @map("completed_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadId])
+  @@index([schoolId, status])
+  @@map("ocr_jobs")
+}
+
+model ImportSession {
+  id          String              @id @default(uuid())
+  schoolId    String              @map("school_id")
+  uploadId    String              @map("upload_id")
+  startedById String              @map("started_by_id")
+  type        String
+  status      ImportSessionStatus @default(draft)
+  approvedById String?            @map("approved_by_id")
+  approvedAt  DateTime?           @map("approved_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  deletedAt   DateTime?           @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadId])
+  @@index([startedById])
+  @@index([schoolId, status])
+  @@map("import_sessions")
+}
+
+model ImportRecord {
+  id               String   @id @default(uuid())
+  schoolId         String   @map("school_id")
+  importSessionId  String   @map("import_session_id")
+  rowNumber        Int      @map("row_number")
+  extractedData    Json     @map("extracted_data")
+  validationErrors Json?    @map("validation_errors")
+  confidence       Float?
+  approved         Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([importSessionId, rowNumber])
+  @@index([schoolId])
+  @@index([importSessionId])
+  @@map("import_records")
+}

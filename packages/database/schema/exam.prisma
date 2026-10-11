@@ -1,0 +1,189 @@
+enum ExamStatus {
+  draft
+  scheduled
+  marks_entry
+  review
+  published
+  archived
+}
+
+enum MarkStatus {
+  draft
+  pending
+  verified
+  approved
+  published
+  rejected
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  medical_leave
+  withheld
+  exempted
+  cheating
+  incomplete
+}
+
+enum MarkSource {
+  manual
+  ai_import
+  bulk_import
+  system
+}
+
+enum ResultStatus {
+  draft
+  calculated
+  verified
+  approved
+  published
+  reopened
+}
+
+model Exam {
+  id                 String      @id @default(uuid())
+  schoolId           String      @map("school_id")
+  academicYearId     String      @map("academic_year_id")
+  name               String
+  startDate          DateTime    @map("start_date")
+  endDate            DateTime    @map("end_date")
+  resultPublishDate  DateTime?   @map("result_publish_date")
+  status             ExamStatus  @default(draft)
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+  deletedAt          DateTime?   @map("deleted_at")
+
+  @@unique([schoolId, academicYearId, name])
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@map("exams")
+}
+
+model ExamSubject {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  examId           String    @map("exam_id")
+  subjectOfferingId String    @map("subject_offering_id")
+  blueprintId      String    @map("blueprint_id")
+  isOptional       Boolean   @default(false) @map("is_optional")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([examId, subjectOfferingId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([subjectOfferingId])
+  @@map("exam_subjects")
+}
+
+model MarkEntry {
+  id                 String           @id @default(uuid())
+  schoolId           String           @map("school_id")
+  examId             String           @map("exam_id")
+  examSubjectId      String           @map("exam_subject_id")
+  studentId          String           @map("student_id")
+  enrollmentId       String           @map("enrollment_id")
+  assessmentComponentId String        @map("assessment_component_id")
+  markValue          Decimal?         @map("mark_value") @db.Decimal(8, 2)
+  status             MarkStatus       @default(pending)
+  attendanceStatus   AttendanceStatus @default(present) @map("attendance_status")
+  source             MarkSource       @default(manual)
+  enteredById        String?          @map("entered_by_id")
+  verifiedById       String?          @map("verified_by_id")
+  confidenceScore    Float?           @map("confidence_score")
+  notes              String?
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  deletedAt          DateTime?        @map("deleted_at")
+
+  @@unique([examSubjectId, enrollmentId, assessmentComponentId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([studentId])
+  @@index([enrollmentId])
+  @@index([assessmentComponentId])
+  @@map("marks")
+}
+
+model Result {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  examId           String    @map("exam_id")
+  studentId        String    @map("student_id")
+  enrollmentId       String    @map("enrollment_id")
+  totalMarks       Decimal   @map("total_marks") @db.Decimal(8, 2)
+  percentage       Decimal   @db.Decimal(5, 2)
+  grade            String
+  gpa              Decimal   @db.Decimal(4, 2)
+  passStatus       String    @map("pass_status")
+  status           ResultStatus @default(calculated)
+  failedSubjects   Json?     @map("failed_subjects")
+  approvedAt       DateTime? @map("approved_at")
+  classRank        Int?      @map("class_rank")
+  sectionRank      Int?      @map("section_rank")
+  overallRank      Int?      @map("overall_rank")
+  publishedAt      DateTime? @map("published_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([examId, enrollmentId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([studentId])
+  @@index([enrollmentId])
+  @@map("results")
+}
+
+model ResultSnapshot {
+  id         String   @id @default(uuid())
+  schoolId   String   @map("school_id")
+  resultId   String   @map("result_id")
+  version    Int
+  snapshot   Json
+  createdById String  @map("created_by_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([resultId, version])
+  @@index([schoolId])
+  @@index([resultId])
+  @@map("result_snapshots")
+}
+
+model ResultApproval {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  examId      String    @map("exam_id")
+  userId      String    @map("user_id")
+  role        String
+  status      String
+  remarks     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([examId])
+  @@index([userId])
+  @@map("result_approvals")
+}
+
+model GradingBand {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  name        String
+  minPercent  Decimal   @map("min_percent") @db.Decimal(5, 2)
+  maxPercent  Decimal   @map("max_percent") @db.Decimal(5, 2)
+  grade       String
+  gpa         Decimal   @db.Decimal(4, 2)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([schoolId, grade])
+  @@index([schoolId])
+  @@map("grading_bands")
+}

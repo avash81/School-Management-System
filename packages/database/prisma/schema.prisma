@@ -1,0 +1,1099 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// identity.prisma
+enum UserStatus {
+  pending_invitation
+  active
+  suspended
+  locked
+  archived
+}
+
+model User {
+  id           String      @id @default(uuid())
+  schoolId     String?
+  email        String      @unique
+  passwordHash String      @map("password_hash")
+  firstName    String      @map("first_name")
+  lastName     String      @map("last_name")
+  phone        String?
+  status       UserStatus  @default(pending_invitation)
+  lastLoginAt  DateTime?   @map("last_login")
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+  deletedAt    DateTime?   @map("deleted_at")
+
+  @@index([schoolId])
+  @@map("users")
+}
+
+model Role {
+  id        String    @id @default(uuid())
+  schoolId  String?
+  name      String
+  code      String
+  description String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([schoolId, code])
+  @@index([schoolId])
+  @@map("roles")
+}
+
+model Permission {
+  id        String    @id @default(uuid())
+  code      String    @unique
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  id           String    @id @default(uuid())
+  roleId       String    @map("role_id")
+  permissionId String    @map("permission_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserRole {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  roleId    String    @map("role_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@unique([userId, roleId])
+  @@index([userId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model Session {
+  id                String    @id @default(uuid())
+  userId            String    @map("user_id")
+  refreshTokenHash  String    @map("refresh_token_hash")
+  device            String?
+  browser           String?
+  ipAddress         String?   @map("ip_address")
+  expiresAt         DateTime  @map("expires_at")
+  revokedAt         DateTime?  @map("revoked_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @unique @map("token_hash")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+// school.prisma
+enum SchoolStatus {
+  active
+  suspended
+  archived
+}
+
+model School {
+  id               String       @id @default(uuid())
+  name             String
+  shortName        String?      @map("short_name")
+  registrationNo   String?      @map("registration_no")
+  schoolType       String?      @map("school_type")
+  establishedYear  Int?         @map("established_year")
+  phone            String?
+  email            String?
+  website          String?
+  address          String?
+  logoUrl          String?      @map("logo_url")
+  principalSigUrl  String?      @map("principal_sig_url")
+  sealUrl          String?      @map("seal_url")
+  status           SchoolStatus @default(active)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  deletedAt        DateTime?    @map("deleted_at")
+
+  @@map("schools")
+}
+
+model SchoolSetting {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  timeZone         String    @default("UTC") @map("time_zone")
+  language         String    @default("en")
+  dateFormat       String    @default("YYYY-MM-DD") @map("date_format")
+  numberFormat     String    @default("en-US") @map("number_format")
+  currency         String? @map("currency")
+  academicCalendar Json?     @map("academic_calendar")
+  rollNumberFormat String?   @map("roll_number_format")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([schoolId])
+  @@index([schoolId])
+  @@map("school_settings")
+}
+
+model AcademicYear {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  name        String
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  isActive    Boolean   @default(false) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([schoolId, isActive])
+  @@unique([schoolId, name])
+  @@map("academic_years")
+}
+
+model GradingSystem {
+  id        String    @id @default(uuid())
+  schoolId  String    @map("school_id")
+  name      String
+  isDefault Boolean   @default(false) @map("is_default")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@map("grading_systems")
+}
+
+// academic.prisma
+model Class {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  name       String
+  shortName  String?   @map("short_name")
+  educationLevel String? @map("education_level")
+  minimumAge Int?      @map("minimum_age")
+  maximumAge Int?      @map("maximum_age")
+  orderIndex Int       @map("order_index")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("classes")
+}
+
+model Section {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  classId    String    @map("class_id")
+  name       String
+  capacity   Int?      @map("capacity")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([classId, name])
+  @@index([schoolId])
+  @@index([classId])
+  @@map("sections")
+}
+
+model Subject {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  name       String
+  shortName  String?   @map("short_name")
+  code       String
+  category   String
+  maximumMarks Int?    @map("maximum_marks")
+  credit     Int?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([schoolId, name])
+  @@unique([schoolId, code])
+  @@index([schoolId])
+  @@map("subjects")
+}
+
+model SubjectGroup {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  name       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("subject_groups")
+}
+
+model TeacherAssignment {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  teacherId   String    @map("teacher_id")
+  academicYearId String @map("academic_year_id")
+  classId     String    @map("class_id")
+  sectionId   String    @map("section_id")
+  subjectId   String    @map("subject_id")
+  role        String    @default("subject_teacher")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([teacherId, academicYearId, classId, sectionId, subjectId])
+  @@index([schoolId])
+  @@index([teacherId])
+  @@index([academicYearId])
+  @@index([classId])
+  @@index([sectionId])
+  @@index([subjectId])
+  @@map("teacher_assignments")
+}
+
+model CurriculumVersion {
+  id           String    @id @default(uuid())
+  schoolId     String    @map("school_id")
+  name         String
+  version      String
+  description  String?
+  isActive     Boolean   @default(false) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@unique([schoolId, name, version])
+  @@index([schoolId])
+  @@map("curriculum_versions")
+}
+
+model AssessmentBlueprint {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  curriculumVersionId String @map("curriculum_version_id")
+  name        String
+  subjectId   String?   @map("subject_id")
+  totalMarks  Int       @map("total_marks")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([subjectId])
+  @@index([curriculumVersionId])
+  @@map("assessment_blueprints")
+}
+
+model AssessmentComponent {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  blueprintId String    @map("blueprint_id")
+  name        String
+  maxMarks    Int       @map("max_marks")
+  orderIndex  Int       @map("order_index")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([blueprintId])
+  @@unique([blueprintId, orderIndex])
+  @@map("assessment_components")
+}
+
+model SubjectOffering {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  academicYearId String  @map("academic_year_id")
+  classId     String    @map("class_id")
+  sectionId   String    @map("section_id")
+  subjectId   String    @map("subject_id")
+  teacherId   String    @map("teacher_id")
+  blueprintId String    @map("blueprint_id")
+  isElective  Boolean   @default(false) @map("is_elective")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([academicYearId, classId, sectionId, subjectId])
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@index([teacherId])
+  @@index([classId])
+  @@index([sectionId])
+  @@index([subjectId])
+  @@map("subject_offerings")
+}
+
+model PromotionRule {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  fromClassId String    @map("from_class_id")
+  toClassId   String    @map("to_class_id")
+  passMinPercent Int?   @map("pass_min_percent")
+  repeatClassId String? @map("repeat_class_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([schoolId, fromClassId])
+  @@index([schoolId])
+  @@map("promotion_rules")
+}
+
+// student.prisma
+enum StudentStatus {
+  applied
+  admitted
+  enrolled
+  active
+  transferred
+  graduated
+  dropped
+  expelled
+  archived
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum EnrollmentStatus {
+  active
+  completed
+  transferred
+  dropped
+  expelled
+  withdrawn
+}
+
+model Student {
+  id             String         @id @default(uuid())
+  schoolId       String         @map("school_id")
+  academicId     String         @map("academic_id")
+  admissionNo    String         @map("admission_no")
+  firstName      String         @map("first_name")
+  middleName     String?        @map("middle_name")
+  lastName       String         @map("last_name")
+  preferredName  String?        @map("preferred_name")
+  dateOfBirth    DateTime?      @map("date_of_birth")
+  gender         Gender?
+  phone          String?
+  email          String?
+  currentAddress String?        @map("current_address")
+  permanentAddress String?      @map("permanent_address")
+  status         StudentStatus   @default(applied)
+  admissionDate  DateTime?      @map("admission_date")
+  lastLoginAt    DateTime?      @map("last_login_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, admissionNo])
+  @@unique([schoolId, academicId])
+  @@index([schoolId])
+  @@index([schoolId, status])
+  @@map("students")
+}
+
+model Guardian {
+  id            String    @id @default(uuid())
+  schoolId      String    @map("school_id")
+  name          String
+  relationship  String
+  phone         String?
+  email         String?
+  occupation    String?
+  address       String?
+  emergencyContact String? @map("emergency_contact")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@map("guardians")
+}
+
+model StudentGuardian {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  studentId   String    @map("student_id")
+  guardianId  String    @map("guardian_id")
+  isPrimary   Boolean   @default(false) @map("is_primary")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([studentId, guardianId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([guardianId])
+  @@map("student_guardians")
+}
+
+model Enrollment {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  studentId        String    @map("student_id")
+  academicYearId   String    @map("academic_year_id")
+  classId          String    @map("class_id")
+  sectionId        String    @map("section_id")
+  rollNumber       String?      @map("roll_number")
+  status           EnrollmentStatus @default(active)
+  promotedFromId   String?   @map("promoted_from_id")
+  enrolledAt       DateTime  @default(now()) @map("enrolled_at")
+  endedAt          DateTime? @map("ended_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([academicYearId, classId, sectionId, rollNumber])
+  @@unique([studentId, academicYearId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([academicYearId])
+  @@index([classId])
+  @@index([sectionId])
+  @@map("enrollments")
+}
+
+// teacher.prisma
+enum TeacherStatus {
+  pending
+  active
+  on_leave
+  suspended
+  resigned
+  retired
+  archived
+}
+
+enum EmploymentType {
+  full_time
+  part_time
+  contract
+  guest_faculty
+}
+
+model Department {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  name       String
+  code       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([schoolId, code])
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("departments")
+}
+
+model Teacher {
+  id                 String         @id @default(uuid())
+  schoolId           String         @map("school_id")
+  employeeId         String         @map("employee_id")
+  firstName          String         @map("first_name")
+  middleName         String?        @map("middle_name")
+  lastName           String         @map("last_name")
+  gender             String?
+  dateOfBirth        DateTime?      @map("date_of_birth")
+  nationality        String?
+  maritalStatus      String?        @map("marital_status")
+  phone              String?
+  email              String?
+  currentAddress     String?        @map("current_address")
+  permanentAddress   String?        @map("permanent_address")
+  emergencyContact   String?        @map("emergency_contact")
+  joiningDate        DateTime?      @map("joining_date")
+  departmentId       String?        @map("department_id")
+  designation        String?
+  employmentType     EmploymentType  @default(full_time) @map("employment_type")
+  status             TeacherStatus   @default(pending)
+  photoUrl           String?        @map("photo_url")
+  signatureUrl       String?        @map("signature_url")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, employeeId])
+  @@index([schoolId])
+  @@index([departmentId])
+  @@index([schoolId, status])
+  @@map("teachers")
+}
+
+model TeacherQualification {
+  id            String    @id @default(uuid())
+  schoolId      String    @map("school_id")
+  teacherId     String    @map("teacher_id")
+  degree        String
+  institution   String
+  year          Int
+  subject       String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("teacher_qualifications")
+}
+
+model TeacherDocument {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  teacherId   String    @map("teacher_id")
+  type        String
+  fileUrl     String    @map("file_url")
+  fileName    String    @map("file_name")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("teacher_documents")
+}
+
+model HomeroomAssignment {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  teacherId   String    @map("teacher_id")
+  classId     String    @map("class_id")
+  sectionId   String    @map("section_id")
+  academicYearId String @map("academic_year_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([classId, sectionId, academicYearId])
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("homeroom_assignments")
+}
+
+// exam.prisma
+enum ExamStatus {
+  draft
+  scheduled
+  marks_entry
+  review
+  published
+  archived
+}
+
+enum MarkStatus {
+  draft
+  pending
+  verified
+  approved
+  published
+  rejected
+}
+
+enum AttendanceStatus {
+  present
+  absent
+  medical_leave
+  withheld
+  exempted
+  cheating
+  incomplete
+}
+
+enum MarkSource {
+  manual
+  ai_import
+  bulk_import
+  system
+}
+
+enum ResultStatus {
+  draft
+  calculated
+  verified
+  approved
+  published
+  reopened
+}
+
+model Exam {
+  id                 String      @id @default(uuid())
+  schoolId           String      @map("school_id")
+  academicYearId     String      @map("academic_year_id")
+  name               String
+  startDate          DateTime    @map("start_date")
+  endDate            DateTime    @map("end_date")
+  resultPublishDate  DateTime?   @map("result_publish_date")
+  status             ExamStatus  @default(draft)
+  createdAt          DateTime    @default(now()) @map("created_at")
+  updatedAt          DateTime    @updatedAt @map("updated_at")
+  deletedAt          DateTime?   @map("deleted_at")
+
+  @@unique([schoolId, academicYearId, name])
+  @@index([schoolId])
+  @@index([academicYearId])
+  @@map("exams")
+}
+
+model ExamSubject {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  examId           String    @map("exam_id")
+  subjectOfferingId String    @map("subject_offering_id")
+  blueprintId      String    @map("blueprint_id")
+  isOptional       Boolean   @default(false) @map("is_optional")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([examId, subjectOfferingId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([subjectOfferingId])
+  @@map("exam_subjects")
+}
+
+model MarkEntry {
+  id                 String           @id @default(uuid())
+  schoolId           String           @map("school_id")
+  examId             String           @map("exam_id")
+  examSubjectId      String           @map("exam_subject_id")
+  studentId          String           @map("student_id")
+  enrollmentId       String           @map("enrollment_id")
+  assessmentComponentId String        @map("assessment_component_id")
+  markValue          Decimal?         @map("mark_value") @db.Decimal(8, 2)
+  status             MarkStatus       @default(pending)
+  attendanceStatus   AttendanceStatus @default(present) @map("attendance_status")
+  source             MarkSource       @default(manual)
+  enteredById        String?          @map("entered_by_id")
+  verifiedById       String?          @map("verified_by_id")
+  confidenceScore    Float?           @map("confidence_score")
+  notes              String?
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  deletedAt          DateTime?        @map("deleted_at")
+
+  @@unique([examSubjectId, enrollmentId, assessmentComponentId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([studentId])
+  @@index([enrollmentId])
+  @@index([assessmentComponentId])
+  @@map("marks")
+}
+
+model Result {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  examId           String    @map("exam_id")
+  studentId        String    @map("student_id")
+  enrollmentId       String    @map("enrollment_id")
+  totalMarks       Decimal   @map("total_marks") @db.Decimal(8, 2)
+  percentage       Decimal   @db.Decimal(5, 2)
+  grade            String
+  gpa              Decimal   @db.Decimal(4, 2)
+  passStatus       String    @map("pass_status")
+  status           ResultStatus @default(calculated)
+  failedSubjects   Json?     @map("failed_subjects")
+  approvedAt       DateTime? @map("approved_at")
+  classRank        Int?      @map("class_rank")
+  sectionRank      Int?      @map("section_rank")
+  overallRank      Int?      @map("overall_rank")
+  publishedAt      DateTime? @map("published_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([examId, enrollmentId])
+  @@index([schoolId])
+  @@index([examId])
+  @@index([studentId])
+  @@index([enrollmentId])
+  @@map("results")
+}
+
+model ResultSnapshot {
+  id         String   @id @default(uuid())
+  schoolId   String   @map("school_id")
+  resultId   String   @map("result_id")
+  version    Int
+  snapshot   Json
+  createdById String  @map("created_by_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([resultId, version])
+  @@index([schoolId])
+  @@index([resultId])
+  @@map("result_snapshots")
+}
+
+model ResultApproval {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  examId      String    @map("exam_id")
+  userId      String    @map("user_id")
+  role        String
+  status      String
+  remarks     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([examId])
+  @@index([userId])
+  @@map("result_approvals")
+}
+
+model GradingBand {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  name        String
+  minPercent  Decimal   @map("min_percent") @db.Decimal(5, 2)
+  maxPercent  Decimal   @map("max_percent") @db.Decimal(5, 2)
+  grade       String
+  gpa         Decimal   @db.Decimal(4, 2)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([schoolId, grade])
+  @@index([schoolId])
+  @@map("grading_bands")
+}
+
+// document.prisma
+enum DocumentType {
+  report_card
+  marksheet
+  progress_report
+  admit_card
+  seating_list
+  attendance_sheet
+  marks_register
+  student_id_card
+  character_certificate
+  bonafide_certificate
+  transfer_certificate
+  graduation_certificate
+  achievement_certificate
+  notice
+  fee_letter
+  circular
+  parent_letter
+}
+
+enum DocumentStatus {
+  draft
+  queued
+  generating
+  generated
+  stored
+  failed
+  archived
+}
+
+model DocumentTemplate {
+  id             String         @id @default(uuid())
+  schoolId       String         @map("school_id")
+  type           DocumentType
+  name           String
+  version        String
+  isActive       Boolean        @default(false) @map("is_active")
+  canvasJson     Json?          @map("canvas_json")
+  htmlTemplate   String?        @map("html_template")
+  cssTemplate    String?        @map("css_template")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, type, version])
+  @@index([schoolId])
+  @@map("report_templates")
+}
+
+model GeneratedDocument {
+  id                   String         @id @default(uuid())
+  schoolId             String         @map("school_id")
+  templateId           String         @map("template_id")
+  type                 DocumentType
+  status               DocumentStatus @default(draft)
+  title                String
+  sourceEntityType     String         @map("source_entity_type")
+  sourceEntityId       String         @map("source_entity_id")
+  verificationCode     String         @unique @map("verification_code")
+  fileUrl              String?        @map("file_url")
+  fileKey              String?        @map("file_key")
+  fileSizeBytes        Int?           @map("file_size_bytes")
+  templateVersion      String         @map("template_version")
+  sourceDataVersion    String?        @map("source_data_version")
+  generatedByUserId    String?        @map("generated_by_user_id")
+  generatedAt          DateTime?      @map("generated_at")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  deletedAt            DateTime?      @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([templateId])
+  @@index([sourceEntityType, sourceEntityId])
+  @@map("generated_documents")
+}
+
+model DocumentHistory {
+  id                String    @id @default(uuid())
+  schoolId          String    @map("school_id")
+  generatedDocumentId String  @map("generated_document_id")
+  action            String
+  performedByUserId String?   @map("performed_by_user_id")
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([generatedDocumentId])
+  @@map("document_history")
+}
+
+// notice.prisma
+enum NoticeStatus {
+  draft
+  scheduled
+  published
+  expired
+  archived
+}
+
+enum NoticePriority {
+  low
+  normal
+  high
+  urgent
+}
+
+model Notice {
+  id            String        @id @default(uuid())
+  schoolId      String        @map("school_id")
+  title         String
+  content       String
+  noticeNumber  String?       @map("notice_number")
+  status        NoticeStatus  @default(draft)
+  priority      NoticePriority @default(normal)
+  publishedAt   DateTime?     @map("published_at")
+  effectiveAt   DateTime?     @map("effective_at")
+  expiresAt     DateTime?     @map("expires_at")
+  audience      Json?
+  attachmentKey String?       @map("attachment_key")
+  createdById   String        @map("created_by_id")
+  publishedById String?       @map("published_by_id")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  deletedAt     DateTime?     @map("deleted_at")
+
+  @@index([schoolId, status])
+  @@index([schoolId, publishedAt])
+  @@map("notices")
+}
+
+model NoticeHistory {
+  id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
+  noticeId    String   @map("notice_id")
+  action      String
+  performedBy String   @map("performed_by")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([schoolId, noticeId])
+  @@map("notice_history")
+}
+
+// file.prisma
+model File {
+  id           String    @id @default(uuid())
+  schoolId     String    @map("school_id")
+  storageKey   String    @map("storage_key")
+  originalName String    @map("original_name")
+  mimeType     String    @map("mime_type")
+  sizeBytes    Int       @map("size_bytes")
+  checksum     String?
+  uploadedById String    @map("uploaded_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@unique([schoolId, storageKey])
+  @@index([schoolId])
+  @@index([uploadedById])
+  @@map("files")
+}
+
+// ai.prisma
+enum UploadStatus {
+  pending
+  processing
+  completed
+  failed
+  rejected
+}
+
+enum OCRJobStatus {
+  queued
+  processing
+  completed
+  failed
+  reviewed
+}
+
+enum ImportSessionStatus {
+  draft
+  validating
+  review
+  approved
+  imported
+  rejected
+  failed
+}
+
+model Upload {
+  id           String       @id @default(uuid())
+  schoolId     String       @map("school_id")
+  uploadedById String       @map("uploaded_by_id")
+  fileName     String       @map("file_name")
+  fileKey      String       @map("file_key")
+  contentType  String       @map("content_type")
+  sizeBytes    Int          @map("size_bytes")
+  checksum     String?
+  status       UploadStatus @default(pending)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+  deletedAt    DateTime?    @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadedById])
+  @@index([schoolId, status])
+  @@map("uploads")
+}
+
+model OCRJob {
+  id          String        @id @default(uuid())
+  schoolId    String        @map("school_id")
+  uploadId    String        @map("upload_id")
+  status      OCRJobStatus  @default(queued)
+  provider    String?
+  result      Json?
+  confidence  Float?
+  error       String?
+  startedAt   DateTime?     @map("started_at")
+  completedAt DateTime?     @map("completed_at")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  deletedAt   DateTime?     @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadId])
+  @@index([schoolId, status])
+  @@map("ocr_jobs")
+}
+
+model ImportSession {
+  id          String              @id @default(uuid())
+  schoolId    String              @map("school_id")
+  uploadId    String              @map("upload_id")
+  startedById String              @map("started_by_id")
+  type        String
+  status      ImportSessionStatus @default(draft)
+  approvedById String?            @map("approved_by_id")
+  approvedAt  DateTime?           @map("approved_at")
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  deletedAt   DateTime?           @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([uploadId])
+  @@index([startedById])
+  @@index([schoolId, status])
+  @@map("import_sessions")
+}
+
+model ImportRecord {
+  id               String   @id @default(uuid())
+  schoolId         String   @map("school_id")
+  importSessionId  String   @map("import_session_id")
+  rowNumber        Int      @map("row_number")
+  extractedData    Json     @map("extracted_data")
+  validationErrors Json?    @map("validation_errors")
+  confidence       Float?
+  approved         Boolean  @default(false)
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([importSessionId, rowNumber])
+  @@index([schoolId])
+  @@index([importSessionId])
+  @@map("import_records")
+}
+
+// system.prisma
+model AuditLog {
+  id         String    @id @default(uuid())
+  schoolId   String?   @map("school_id")
+  userId     String?   @map("user_id")
+  module     String
+  action     String
+  message    String
+  entityId   String?   @map("entity_id")
+  oldValue   String?   @map("old_value")
+  newValue   String?   @map("new_value")
+  metadata   Json?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([userId])
+  @@map("audit_logs")
+}

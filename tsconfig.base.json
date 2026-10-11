@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowJs": false,
+    "ignoreDeprecations": "5.0",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@schoolos/types": ["packages/types/src"],
+      "@schoolos/types/*": ["packages/types/src/*"],
+      "@schoolos/validation": ["packages/validation/src"],
+      "@schoolos/validation/*": ["packages/validation/src/*"],
+      "@schoolos/config": ["packages/config/src"],
+      "@schoolos/config/*": ["packages/config/src/*"],
+      "@schoolos/auth": ["packages/auth/src"],
+      "@schoolos/auth/*": ["packages/auth/src/*"],
+      "@schoolos/logger": ["packages/logger/src"],
+      "@schoolos/logger/*": ["packages/logger/src/*"],
+      "@schoolos/storage": ["packages/storage/src"],
+      "@schoolos/storage/*": ["packages/storage/src/*"],
+      "@schoolos/shared": ["packages/shared/src"],
+      "@schoolos/shared/*": ["packages/shared/src/*"],
+      "@schoolos/database": ["packages/database/src"],
+      "@schoolos/database/*": ["packages/database/src/*"]
+    }
+  }
+}

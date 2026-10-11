@@ -1,0 +1,92 @@
+enum DocumentType {
+  report_card
+  marksheet
+  progress_report
+  admit_card
+  seating_list
+  attendance_sheet
+  marks_register
+  student_id_card
+  character_certificate
+  bonafide_certificate
+  transfer_certificate
+  graduation_certificate
+  achievement_certificate
+  notice
+  fee_letter
+  circular
+  parent_letter
+}
+
+enum DocumentStatus {
+  draft
+  queued
+  generating
+  generated
+  stored
+  failed
+  archived
+}
+
+model DocumentTemplate {
+  id             String         @id @default(uuid())
+  schoolId       String         @map("school_id")
+  type           DocumentType
+  name           String
+  version        String
+  isActive       Boolean        @default(false) @map("is_active")
+  canvasJson     Json?          @map("canvas_json")
+  htmlTemplate   String?        @map("html_template")
+  cssTemplate    String?        @map("css_template")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, type, version])
+  @@index([schoolId])
+  @@map("report_templates")
+}
+
+model GeneratedDocument {
+  id                   String         @id @default(uuid())
+  schoolId             String         @map("school_id")
+  templateId           String         @map("template_id")
+  type                 DocumentType
+  status               DocumentStatus @default(draft)
+  title                String
+  sourceEntityType     String         @map("source_entity_type")
+  sourceEntityId       String         @map("source_entity_id")
+  verificationCode     String         @unique @map("verification_code")
+  fileUrl              String?        @map("file_url")
+  fileKey              String?        @map("file_key")
+  fileSizeBytes        Int?           @map("file_size_bytes")
+  templateVersion      String         @map("template_version")
+  sourceDataVersion    String?        @map("source_data_version")
+  generatedByUserId    String?        @map("generated_by_user_id")
+  generatedAt          DateTime?      @map("generated_at")
+  createdAt            DateTime       @default(now()) @map("created_at")
+  updatedAt            DateTime       @updatedAt @map("updated_at")
+  deletedAt            DateTime?      @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([templateId])
+  @@index([sourceEntityType, sourceEntityId])
+  @@map("generated_documents")
+}
+
+model DocumentHistory {
+  id                String    @id @default(uuid())
+  schoolId          String    @map("school_id")
+  generatedDocumentId String  @map("generated_document_id")
+  action            String
+  performedByUserId String?   @map("performed_by_user_id")
+  notes             String?
+  metadata          Json?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+  deletedAt         DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([generatedDocumentId])
+  @@map("document_history")
+}

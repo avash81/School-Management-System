@@ -1,0 +1,8 @@
+# Add named owners before the first protected-branch release.
+* @schoolos-maintainers
+
+/apps/api/ @schoolos-api-maintainers
+/apps/ai-service/ @schoolos-ai-maintainers
+/packages/database/ @schoolos-data-maintainers
+/infrastructure/ @schoolos-platform-maintainers
+/docs/architecture/ @schoolos-architecture-maintainers

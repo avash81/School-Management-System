@@ -1,0 +1,51 @@
+enum NoticeStatus {
+  draft
+  scheduled
+  published
+  expired
+  archived
+}
+
+enum NoticePriority {
+  low
+  normal
+  high
+  urgent
+}
+
+model Notice {
+  id            String        @id @default(uuid())
+  schoolId      String        @map("school_id")
+  title         String
+  content       String
+  noticeNumber  String?       @map("notice_number")
+  status        NoticeStatus  @default(draft)
+  priority      NoticePriority @default(normal)
+  publishedAt   DateTime?     @map("published_at")
+  effectiveAt   DateTime?     @map("effective_at")
+  expiresAt     DateTime?     @map("expires_at")
+  audience      Json?
+  attachmentKey String?       @map("attachment_key")
+  createdById   String        @map("created_by_id")
+  publishedById String?       @map("published_by_id")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  deletedAt     DateTime?     @map("deleted_at")
+
+  @@index([schoolId, status])
+  @@index([schoolId, publishedAt])
+  @@map("notices")
+}
+
+model NoticeHistory {
+  id          String   @id @default(uuid())
+  schoolId    String   @map("school_id")
+  noticeId    String   @map("notice_id")
+  action      String
+  performedBy String   @map("performed_by")
+  metadata    Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([schoolId, noticeId])
+  @@map("notice_history")
+}

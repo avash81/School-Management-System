@@ -1,0 +1,76 @@
+enum SchoolStatus {
+  active
+  suspended
+  archived
+}
+
+model School {
+  id               String       @id @default(uuid())
+  name             String
+  shortName        String?      @map("short_name")
+  registrationNo   String?      @map("registration_no")
+  schoolType       String?      @map("school_type")
+  establishedYear  Int?         @map("established_year")
+  phone            String?
+  email            String?
+  website          String?
+  address          String?
+  logoUrl          String?      @map("logo_url")
+  principalSigUrl  String?      @map("principal_sig_url")
+  sealUrl          String?      @map("seal_url")
+  status           SchoolStatus @default(active)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  deletedAt        DateTime?    @map("deleted_at")
+
+  @@map("schools")
+}
+
+model SchoolSetting {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  timeZone         String    @default("UTC") @map("time_zone")
+  language         String    @default("en")
+  dateFormat       String    @default("YYYY-MM-DD") @map("date_format")
+  numberFormat     String    @default("en-US") @map("number_format")
+  currency         String? @map("currency")
+  academicCalendar Json?     @map("academic_calendar")
+  rollNumberFormat String?   @map("roll_number_format")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([schoolId])
+  @@index([schoolId])
+  @@map("school_settings")
+}
+
+model AcademicYear {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  name        String
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  isActive    Boolean   @default(false) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([schoolId, isActive])
+  @@unique([schoolId, name])
+  @@map("academic_years")
+}
+
+model GradingSystem {
+  id        String    @id @default(uuid())
+  schoolId  String    @map("school_id")
+  name      String
+  isDefault Boolean   @default(false) @map("is_default")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  deletedAt DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@map("grading_systems")
+}

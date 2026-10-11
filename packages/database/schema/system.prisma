@@ -1,0 +1,19 @@
+model AuditLog {
+  id         String    @id @default(uuid())
+  schoolId   String?   @map("school_id")
+  userId     String?   @map("user_id")
+  module     String
+  action     String
+  message    String
+  entityId   String?   @map("entity_id")
+  oldValue   String?   @map("old_value")
+  newValue   String?   @map("new_value")
+  metadata   Json?
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([userId])
+  @@map("audit_logs")
+}

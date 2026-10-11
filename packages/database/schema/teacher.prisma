@@ -1,0 +1,115 @@
+enum TeacherStatus {
+  pending
+  active
+  on_leave
+  suspended
+  resigned
+  retired
+  archived
+}
+
+enum EmploymentType {
+  full_time
+  part_time
+  contract
+  guest_faculty
+}
+
+model Department {
+  id         String    @id @default(uuid())
+  schoolId   String    @map("school_id")
+  name       String
+  code       String
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  deletedAt  DateTime? @map("deleted_at")
+
+  @@unique([schoolId, code])
+  @@unique([schoolId, name])
+  @@index([schoolId])
+  @@map("departments")
+}
+
+model Teacher {
+  id                 String         @id @default(uuid())
+  schoolId           String         @map("school_id")
+  employeeId         String         @map("employee_id")
+  firstName          String         @map("first_name")
+  middleName         String?        @map("middle_name")
+  lastName           String         @map("last_name")
+  gender             String?
+  dateOfBirth        DateTime?      @map("date_of_birth")
+  nationality        String?
+  maritalStatus      String?        @map("marital_status")
+  phone              String?
+  email              String?
+  currentAddress     String?        @map("current_address")
+  permanentAddress   String?        @map("permanent_address")
+  emergencyContact   String?        @map("emergency_contact")
+  joiningDate        DateTime?      @map("joining_date")
+  departmentId       String?        @map("department_id")
+  designation        String?
+  employmentType     EmploymentType  @default(full_time) @map("employment_type")
+  status             TeacherStatus   @default(pending)
+  photoUrl           String?        @map("photo_url")
+  signatureUrl       String?        @map("signature_url")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, employeeId])
+  @@index([schoolId])
+  @@index([departmentId])
+  @@index([schoolId, status])
+  @@map("teachers")
+}
+
+model TeacherQualification {
+  id            String    @id @default(uuid())
+  schoolId      String    @map("school_id")
+  teacherId     String    @map("teacher_id")
+  degree        String
+  institution   String
+  year          Int
+  subject       String?
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("teacher_qualifications")
+}
+
+model TeacherDocument {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  teacherId   String    @map("teacher_id")
+  type        String
+  fileUrl     String    @map("file_url")
+  fileName    String    @map("file_name")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("teacher_documents")
+}
+
+model HomeroomAssignment {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  teacherId   String    @map("teacher_id")
+  classId     String    @map("class_id")
+  sectionId   String    @map("section_id")
+  academicYearId String @map("academic_year_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([classId, sectionId, academicYearId])
+  @@index([schoolId])
+  @@index([teacherId])
+  @@map("homeroom_assignments")
+}

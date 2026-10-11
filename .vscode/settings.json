@@ -1,0 +1,9 @@
+{
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "chat.tools.terminal.autoApprove": {
+    "/^node --check packages/database/scripts/seed\\.mjs$/": {
+      "approve": true,
+      "matchCommandLine": true
+    }
+  }
+}

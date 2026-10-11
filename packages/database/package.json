@@ -1,0 +1,29 @@
+{
+  "name": "@schoolos/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/client": "^5.21.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.21.1"
+  },
+  "prisma": {
+    "seed": "node ./scripts/seed.mjs"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prisma": "prisma",
+    "schema:build": "node ./scripts/build-schema.mjs",
+    "db:generate": "pnpm schema:build && dotenv -e ../../.env -- prisma generate --schema ./prisma/schema.prisma",
+    "db:migrate": "pnpm schema:build && dotenv -e ../../.env -- prisma migrate dev --schema ./prisma/schema.prisma",
+    "db:push": "pnpm schema:build && dotenv -e ../../.env -- prisma db push --schema ./prisma/schema.prisma",
+    "db:seed": "pnpm schema:build && dotenv -e ../../.env -- prisma db seed --schema ./prisma/schema.prisma"
+  }
+}

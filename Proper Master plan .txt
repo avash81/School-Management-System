@@ -1,0 +1,3131 @@
+﻿Yes. Based on the actual Pro School.zip repository, our previous planning, the current design-freeze documents, and the current code/infrastructure structure, I recommend creating one single Master Project Handover / AI Context Document.
+The purpose is simple:
+Any new AI, developer, or future version of us should be able to read this one document and immediately understand what SchoolOS is, what has been completed, what is currently happening, what must not be changed, what remains, how the architecture works, and exactly how development must proceed.
+Your uploaded repository is the current project source; it contains the documentation package, applications, packages, database schema, infrastructure, and development configuration.
+SCHOOL OS — MASTER PROJECT STATUS & HANDOVER DOCUMENT
+Project: SchoolOS
+Project Type: Intelligent School Management / School ERP
+Current Stage: Architecture & Design-Freeze Remediation
+Current Gate: Phase 13 — Final Consistency Audit
+Current Decision: 🔴 NO-GO for Architecture Freeze / Feature Coding
+Next Gate: Phase 13 Remediation → Final Audit → Architecture Freeze v1.0
+________________
+
+
+1. PROJECT PURPOSE
+SchoolOS is intended to be a complete school-management platform that manages:
+* Schools
+* Users
+* Teachers
+* Students
+* Guardians
+* Academic years
+* Classes
+* Sections
+* Subjects
+* Curriculum
+* Teacher assignments
+* Examinations
+* Marks
+* Results
+* Marksheets
+* Documents
+* Notices
+* Reports
+* AI/OCR-based marks importing
+* Authentication and authorization
+* Audit history
+* Notifications
+* Storage
+* Background processing
+* Reporting
+* Operational monitoring
+The most important differentiator is the AI/OCR marks-import workflow.
+A teacher should eventually be able to upload:
+* image
+* PDF
+* scanned marksheet
+* photographed marksheet
+* supported school-specific marks format
+and SchoolOS should:
+Uploaded File
+     ↓
+Secure Processing
+     ↓
+OCR
+     ↓
+Table Detection
+     ↓
+Student/Marks Extraction
+     ↓
+Student Matching
+     ↓
+Validation
+     ↓
+Confidence Evaluation
+     ↓
+Human Review when required
+     ↓
+Approval
+     ↓
+Official Marks Engine
+     ↓
+Results
+     ↓
+Marksheets/Documents
+The AI must never directly bypass the official marks/result system.
+________________
+
+
+2. MOST IMPORTANT PROJECT PRINCIPLE
+The project has a strict distinction:
+PLANNED
+   ≠
+DESIGNED
+   ≠
+IMPLEMENTED
+   ≠
+TESTED
+   ≠
+PILOT
+   ≠
+PRODUCTION READY
+This is one of the governing rules of the project.
+A document describing a feature does not mean that feature has been implemented.
+A code module existing in the repository does not automatically mean the feature is production-ready.
+________________
+
+
+3. CURRENT PROJECT STATE
+We are not currently doing ordinary feature development.
+We are currently doing:
+DESIGN VALIDATION
+       ↓
+CONSISTENCY AUDIT
+       ↓
+CORRECTION
+       ↓
+FINAL DESIGN REVIEW
+       ↓
+ARCHITECTURE FREEZE
+       ↓
+CONTROLLED IMPLEMENTATION
+The repository itself explicitly records Phase 13 as NO-GO and gives a readiness score of 58/100.
+The major reason is not that the architecture is fundamentally wrong.
+The problem is that several design artifacts need to become sufficiently precise to serve as implementation contracts.
+________________
+
+
+4. WHAT WE HAVE ALREADY DONE
+Phase 1 — Final SRS
+Status
+🟢 Substantially completed
+The SRS establishes:
+* product vision
+* scope
+* actors
+* functional requirements
+* non-functional requirements
+* governance
+* acceptance criteria
+* system principles
+It is part of the design-freeze package.
+________________
+
+
+5. Phase 2 — Requirements Matrix
+Status
+🟠 Substantially completed, but requires atomic refinement
+The project has a requirements traceability system.
+The remaining issue is that some requirements are too broad.
+We want:
+Requirement
+     ↓
+Use Case
+     ↓
+Business Rule
+     ↓
+Database
+     ↓
+API
+     ↓
+UI
+     ↓
+Security
+     ↓
+Test
+Every requirement must have an unbroken trace.
+________________
+
+
+6. Phase 3 — Use Cases
+Status
+🟠 Partial
+Major actors and workflows have been designed.
+But secondary modules still need detailed use-case specifications.
+Important actors include:
+* Super Admin
+* School Admin
+* Principal/authorized management
+* Teacher
+* Examination/marks staff
+* Student
+* Parent/Guardian
+* Support/operations personnel
+* System/background worker
+* AI/OCR processing service
+________________
+
+
+7. Phase 4 — Activity Diagrams
+Status
+🟠 Partial
+The major flows have been modeled.
+The remaining work is to ensure critical workflows explicitly show:
+Actor
+ ↓
+Authorization
+ ↓
+Validation
+ ↓
+Processing
+ ↓
+Transaction
+ ↓
+Success
+ ↓
+Failure
+ ↓
+Retry/Recovery
+ ↓
+Audit
+________________
+
+
+8. Phase 5 — Sequence Diagrams
+Status
+🟠 Partial
+The architecture already defines synchronous and asynchronous communication.
+Important sequence flows include:
+Authentication
+User
+ ↓
+Web/Admin
+ ↓
+API
+ ↓
+Auth
+ ↓
+Database
+ ↓
+Session
+Marks entry
+Teacher
+ ↓
+UI
+ ↓
+API
+ ↓
+Authorization
+ ↓
+Marks Service
+ ↓
+Database
+ ↓
+Audit
+AI marks import
+Teacher
+ ↓
+Upload
+ ↓
+API
+ ↓
+Private Storage
+ ↓
+Queue
+ ↓
+Worker
+ ↓
+AI/OCR
+ ↓
+Extraction
+ ↓
+Matching
+ ↓
+Validation
+ ↓
+Review
+ ↓
+Approval
+ ↓
+Marks Engine
+Result publication
+Marks
+ ↓
+Calculation
+ ↓
+Snapshot
+ ↓
+Approval
+ ↓
+Lock
+ ↓
+Publish
+ ↓
+Document Generation
+________________
+
+
+9. Phase 6 — Database / ERD
+Status
+🔴 Needs final authoritative specification
+The repository already has a substantial Prisma schema.
+Current domain entities include:
+User
+Role
+Permission
+RolePermission
+UserRole
+Session
+PasswordResetToken
+
+
+School
+SchoolSetting
+
+
+AcademicYear
+GradingSystem
+Class
+Section
+Subject
+SubjectGroup
+TeacherAssignment
+CurriculumVersion
+AssessmentBlueprint
+AssessmentComponent
+SubjectOffering
+PromotionRule
+
+
+Student
+Guardian
+StudentGuardian
+Enrollment
+
+
+Teacher
+Department
+TeacherQualification
+TeacherDocument
+HomeroomAssignment
+
+
+Exam
+ExamSubject
+MarkEntry
+Result
+ResultSnapshot
+ResultApproval
+GradingBand
+
+
+DocumentTemplate
+GeneratedDocument
+DocumentHistory
+
+
+Notice
+NoticeHistory
+
+
+File
+Upload
+OCRJob
+ImportSession
+ImportRecord
+
+
+AuditLog
+This is a strong foundation.
+But the final specification must define every table's:
+* columns
+* types
+* nullability
+* defaults
+* primary key
+* foreign keys
+* relationships
+* indexes
+* unique constraints
+* check constraints
+* deletion behavior
+* tenant isolation
+* lifecycle
+* audit classification
+* versioning
+* migration requirements
+This is CR-01.
+________________
+
+
+10. Phase 7 — System Architecture
+Status
+🟢 Architecture direction approved
+The project uses a modular monolith + supporting services approach.
+The primary architecture is:
+                   ┌─────────────────────┐
+                    │       USERS         │
+                    └──────────┬──────────┘
+                               │
+                  ┌────────────▼────────────┐
+                  │      Next.js Web        │
+                  │     / Admin Portal      │
+                  └────────────┬────────────┘
+                               │
+                       HTTP / API
+                               │
+                  ┌────────────▼────────────┐
+                  │       NestJS API        │
+                  │    Modular Monolith     │
+                  └────────────┬────────────┘
+                               │
+          ┌────────────────────┼───────────────────┐
+          │                    │                   │
+          ▼                    ▼                   ▼
+     PostgreSQL              Redis             Storage
+       Prisma               BullMQ               MinIO
+          │                    │
+          │                    ▼
+          │                 Worker
+          │                    │
+          │                    ▼
+          │                AI Service
+          │                 FastAPI
+          │
+          ▼
+     Official Data
+________________
+
+
+11. Frontend Architecture
+The repository contains:
+apps/web
+apps/admin
+apps/web
+Intended primarily for:
+* student portal
+* parent/guardian portal
+* public/user-facing functionality
+apps/admin
+Intended for:
+* school administration
+* staff
+* teachers
+* examination operations
+* management
+* configuration
+The repository already includes pages such as:
+login
+students
+student details
+marksheets
+notices
+setup
+dashboard
+________________
+
+
+12. Backend Architecture
+The backend is:
+NestJS
+located at:
+apps/api
+Current modules include:
+auth
+academic
+dashboard
+document
+exam
+notice
+reports
+school
+student
+teacher
+The architecture is intentionally modular.
+The principle is:
+Keep the application as a modular monolith initially rather than prematurely creating microservices.
+________________
+
+
+13. Database Architecture
+The project uses:
+PostgreSQL
+with:
+Prisma
+Database package:
+packages/database
+The database schema is divided conceptually into domains such as:
+identity
+school
+academic
+student
+teacher
+exam
+document
+notice
+file
+AI
+system
+This is a good structure for long-term maintainability.
+________________
+
+
+14. Background Processing
+The project uses:
+Redis + BullMQ
+for:
+* OCR processing
+* file processing
+* document generation
+* large reports
+* background jobs
+* retryable operations
+* asynchronous workflows
+The worker is:
+apps/worker
+The important principle is:
+HTTP Request
+    ↓
+Create Job
+    ↓
+Queue
+    ↓
+Worker
+    ↓
+Process
+    ↓
+Persist Result
+Heavy operations should not block normal API requests.
+________________
+
+
+15. AI Service
+There is a dedicated:
+apps/ai-service
+implemented using:
+Python + FastAPI
+Current implementation is a foundation/health endpoint rather than the finished OCR engine.
+The intended AI pipeline is:
+File
+ ↓
+Preprocessing
+ ↓
+OCR
+ ↓
+Table Detection
+ ↓
+Extraction
+ ↓
+Normalization
+ ↓
+Student Matching
+ ↓
+Confidence
+ ↓
+Validation
+ ↓
+Human Review
+ ↓
+Import
+________________
+
+
+16. AI/OCR Safety Rule
+This is one of the most important architectural rules.
+AI does NOT own official marks.
+AI produces:
+Candidate Data
+The official marks engine produces:
+Official Marks
+Therefore:
+AI
+ ↓
+Staged Import
+ ↓
+Validation
+ ↓
+Review
+ ↓
+Approval
+ ↓
+Official Marks Engine
+Never:
+AI
+ ↓
+Database
+ ↓
+Official Result
+________________
+
+
+17. Student Matching
+The AI system must not simply match by name.
+It should use evidence such as:
+Student ID
+Roll Number
+Name
+Class
+Section
+Academic Year
+Historical Enrollment
+Other configured identifiers
+Matching must be:
+* tenant-scoped
+* explainable
+* confidence-based
+* auditable
+* overrideable by authorized users
+________________
+
+
+18. Marks Model
+The system distinguishes:
+Theory
+Practical
+Internal
+Extra/Optional Components
+and student status such as:
+Present
+Absent
+Missing
+Exempt
+Not Submitted
+Zero
+These states must never be accidentally collapsed into one value.
+For example:
+ABSENT ≠ 0
+________________
+
+
+19. Marks Lifecycle
+The designed lifecycle is approximately:
+DRAFT
+ ↓
+ENTERED
+ ↓
+VALIDATED
+ ↓
+SUBMITTED
+ ↓
+APPROVED
+ ↓
+LOCKED
+ ↓
+PUBLISHED
+The exact state machine must remain authoritative.
+After locking:
+ordinary users must not simply edit official marks.
+Corrections require the defined correction/approval workflow.
+________________
+
+
+20. Result Engine
+The result system will calculate:
+Component Marks
+ ↓
+Subject Total
+ ↓
+Weighted Score
+ ↓
+Grade
+ ↓
+GPA
+ ↓
+Pass/Fail
+ ↓
+Overall Result
+The exact calculation rules must be configurable by school policy.
+However, the configuration itself must be versioned.
+________________
+
+
+21. Configuration Versioning
+A major architectural principle is:
+Configuration
+      ↓
+Version
+      ↓
+Used for calculation
+      ↓
+Result stores referenced version
+Therefore, changing the school's grading configuration later must not silently change old results.
+________________
+
+
+22. Document System
+The platform is intended to generate:
+* marksheets
+* ID cards
+* admit cards
+* certificates
+* reports
+* notices
+* other school documents
+The document architecture uses:
+Template
+ ↓
+Data
+ ↓
+Rendering
+ ↓
+Generated Document
+ ↓
+Private Storage
+Generated documents need provenance/history.
+________________
+
+
+23. File Storage
+The project uses:
+MinIO
+for object storage during the current architecture/development environment.
+Files should be private by default.
+Important files include:
+* uploaded marksheets
+* OCR source files
+* generated marksheets
+* generated certificates
+* teacher documents
+* student documents
+________________
+
+
+24. Security Architecture
+Security is built around:
+Authentication
++
+Authorization
++
+Tenant Isolation
++
+Permission Scoping
++
+Audit Logging
++
+Private Storage
++
+Validation
+The project includes:
+Authentication Guard
+Permission Guard
+Permission Decorator
+Request ID
+Exception Filter
+The critical principle is:
+Frontend authorization is never sufficient.
+The backend must enforce permissions.
+________________
+
+
+25. Multi-Tenant / Multi-School Isolation
+This is another core principle.
+Every school must be logically isolated.
+Conceptually:
+School A
+ ├── Students
+ ├── Teachers
+ ├── Marks
+ └── Results
+
+
+School B
+ ├── Students
+ ├── Teachers
+ ├── Marks
+ └── Results
+A user from School A must never be able to access School B's data simply by manipulating an ID.
+________________
+
+
+26. Audit System
+Important operations must be auditable.
+Examples:
+Login
+Permission changes
+Student changes
+Marks changes
+Approval
+Result publication
+AI import
+Document generation
+Configuration changes
+Administrative operations
+Audit records should answer:
+Who?
+What?
+When?
+Which school?
+Which record?
+What changed?
+Why?
+From where?
+Which request/job?
+________________
+
+
+27. Observability
+The architecture includes:
+Request ID
+Logging
+Monitoring
+Prometheus
+Health checks
+Readiness checks
+Worker heartbeat
+The eventual production architecture should support tracing a workflow across:
+Request ID
+ ↓
+Job ID
+ ↓
+Worker
+ ↓
+AI Processing
+ ↓
+Database
+ ↓
+Audit
+________________
+
+
+28. Infrastructure
+The current repository contains infrastructure definitions for:
+PostgreSQL
+Redis
+MinIO
+Nginx
+Prometheus
+Docker
+Development infrastructure is containerized.
+The production topology still needs final operational decisions.
+________________
+
+
+29. Technology Stack
+Current project stack:
+Layer
+	Technology
+	Monorepo
+	Turborepo
+	Package manager
+	pnpm
+	Frontend
+	Next.js / React
+	Admin UI
+	Next.js
+	Backend
+	NestJS
+	Backend language
+	TypeScript
+	Database
+	PostgreSQL
+	ORM
+	Prisma
+	Queue
+	BullMQ
+	Queue backend
+	Redis
+	AI service
+	Python
+	AI API
+	FastAPI
+	Object storage
+	MinIO
+	Reverse proxy
+	Nginx
+	Monitoring
+	Prometheus
+	Containerization
+	Docker
+	Validation
+	Zod
+	Testing direction
+	Vitest + integration/E2E strategy
+	The repository currently specifies Node.js 20.11+ and pnpm 9+.
+________________
+
+
+30. Shared Packages
+The repository contains reusable packages for:
+packages/auth
+packages/config
+packages/constants
+packages/database
+packages/eslint-config
+packages/logger
+packages/shared
+packages/storage
+packages/types
+packages/ui
+packages/utils
+packages/validation
+The purpose is to prevent duplicate implementations between applications.
+________________
+
+
+31. Current Repository Shape
+The high-level structure is:
+SchoolOS
+│
+├── apps/
+│   ├── web/
+│   ├── admin/
+│   ├── api/
+│   ├── worker/
+│   └── ai-service/
+│
+├── packages/
+│   ├── auth/
+│   ├── config/
+│   ├── constants/
+│   ├── database/
+│   ├── logger/
+│   ├── shared/
+│   ├── storage/
+│   ├── types/
+│   ├── ui/
+│   ├── utils/
+│   └── validation/
+│
+├── docs/
+│   ├── architecture/
+│   ├── design-freeze/
+│   ├── deployment/
+│   ├── development/
+│   ├── release/
+│   ├── requirements/
+│   └── roadmap/
+│
+├── infrastructure/
+│   ├── docker/
+│   ├── nginx/
+│   ├── monitoring/
+│   └── scripts/
+│
+└── configuration
+________________
+
+
+32. Documentation Architecture
+Your project documentation is already extensive.
+The major documentation groups are:
+docs/architecture
+for system design.
+docs/design-freeze
+for authoritative design-freeze artifacts.
+docs/requirements
+for requirements.
+docs/roadmap
+for development planning.
+docs/deployment
+for operational/deployment readiness.
+docs/development
+for developer setup.
+________________
+
+
+33. Design-Freeze Package
+Your current package contains documents covering:
+01 SRS
+02 Requirements Traceability
+03 Use Cases
+04 Activity Diagrams
+05 Sequence Diagrams
+06 ERD
+07 Architecture
+08 API
+09 Security
+10 AI/OCR
+11 Marks/Results
+12 UI/UX
+13 State Machines
+14 Testing
+15 Deployment/Operations
+16 Architecture Review
+17 Decisions/Owners
+18 Data Dictionary
+19 Permission Matrix
+20 Business Rules
+21 API Contract Catalog
+22 Test Cases
+23 Operational Policies
+24 Feature Status
+25 Consistency Audit
+26 Phase 13 Review
+27 Phase 14 Freeze
+28 Technology Stack
+29 Final Audit
+This is an excellent overall document structure.
+The issue is completion/precision, not missing categories.
+________________
+
+
+34. Current Phase
+We are here:
+                   CURRENT
+                       ↓
+              PHASE 13 AUDIT
+                       ↓
+              🔴 NO-GO
+                       ↓
+          REMEDIATION REQUIRED
+We are not yet here:
+Architecture Freeze v1.0
+and definitely not yet here:
+★ FULL FEATURE CODING ★
+________________
+
+
+35. Current Audit Score
+Current documented audit:
+58 / 100
+Strong areas
+Vision                 ✅
+Scope                  ✅
+Actors                 ✅
+Architecture           ✅
+AI safety              ✅
+Marks lifecycle        ✅
+Multi-tenancy          ✅
+Versioning             ✅
+Audit concept          ✅
+Async processing       ✅
+Weak areas
+Database detail        🔴
+Atomic traceability    🔴
+API contracts          🔴
+Result policy          🔴
+Use-case completeness  🟠
+Diagram completeness   🟠
+Threat model           🟠
+UI contracts           🟠
+Executable tests       🟠
+Operations detail      🟠
+________________
+
+
+36. CURRENT WORK — PHASE 13 REMEDIATION
+We are now going to fix the findings in this order.
+CR-01
+Database Specification
+Complete ERD
++
+Complete Data Dictionary
++
+Constraints
++
+Indexes
++
+Tenant Rules
++
+Versioning
++
+Migration Strategy
+________________
+
+
+CR-02
+Atomic Requirements
+Convert:
+Broad Requirement
+into:
+Atomic Requirement
+and connect:
+REQ
+ ↓
+UC
+ ↓
+BR
+ ↓
+DB
+ ↓
+API
+ ↓
+UI
+ ↓
+TEST
+________________
+
+
+CR-04
+Marks/Result Policy
+Finalize:
+* grading
+* GPA
+* pass/fail
+* weighting
+* rounding
+* absence
+* missing marks
+* optional subjects
+* approval
+* locking
+* corrections
+* versioning
+________________
+
+
+CR-03
+API Contracts
+Every important endpoint must have:
+Method
+Path
+Auth
+Permission
+Scope
+Request
+Validation
+Response
+Errors
+Pagination
+Filtering
+Idempotency
+Concurrency
+Audit
+Transaction
+________________
+
+
+37. HIGH-PRIORITY REMEDIATION
+After the critical items:
+HI-01
+Complete important use cases.
+HI-02
+Complete critical activity and sequence diagrams.
+HI-03
+Create formal threat model.
+HI-04
+Create screen-level UI contracts.
+HI-05
+Create executable test cases.
+________________
+
+
+38. ADDITIONAL PROJECT-HYGIENE WORK
+Before freeze we should also clean:
+Repository artifacts
+The ZIP currently contains generated/dependency artifacts such as:
+node_modules
+.next
+dist
+.turbo
+.git
+These should not be part of a clean source handoff.
+Environment secrets
+There are environment files in the repository/archive.
+Production secrets should be moved to proper secret management and never treated as source code.
+Database workflow
+Development may use convenient schema operations, but production should use controlled migrations.
+________________
+
+
+39. Golden AI/OCR Dataset
+Before serious AI implementation, we should create:
+AI Golden Dataset
+containing examples such as:
+Clean PDF
+Poor scan
+Rotated scan
+Handwritten marks
+Multi-page marksheet
+Nepali text
+English text
+Mixed language
+Absent students
+Missing marks
+Duplicate students
+Ambiguous names
+Incorrect totals
+Every file gets expected structured output.
+Then:
+AI Model Version
++
+OCR Version
++
+Pipeline Version
++
+Golden Dataset
+becomes our evaluation framework.
+________________
+
+
+40. What We Are NOT Going To Do
+We are not going to:
+❌ restart the project
+❌ throw away the architecture
+❌ create unnecessary microservices
+❌ implement every feature simultaneously
+❌ let AI directly write official marks
+❌ skip requirements because coding looks easier
+❌ treat existing scaffolding as completed functionality
+❌ create dozens of unnecessary planning documents
+________________
+
+
+41. How Coding Will Eventually Start
+After the final audit passes:
+Phase 13
+FINAL AUDIT
+     ↓
+🟢 GO
+     ↓
+Phase 14
+Architecture Freeze v1.0
+     ↓
+Phase 15
+Technology Confirmation
+     ↓
+Phase 16
+Repository / Environment Finalization
+     ↓
+Phase 17
+Controlled Foundation Implementation
+Then implementation proceeds incrementally.
+________________
+
+
+42. Recommended Coding Order
+Once authorized:
+1. Configuration
+2. Database foundation
+3. Authentication
+4. RBAC
+5. Tenant isolation
+6. School management
+7. Academic structure
+8. Student management
+9. Guardian management
+10. Enrollment
+11. Teacher management
+12. Teacher assignments
+13. Examination
+14. Marks entry
+15. Marks validation
+16. Approval
+17. Result engine
+18. Result snapshots
+19. Document generation
+20. Reports
+21. Notices
+22. Background jobs
+23. AI/OCR foundation
+24. OCR extraction
+25. Student matching
+26. Validation
+27. Human review
+28. Controlled marks import
+29. End-to-end integration
+30. Pilot
+This ordering is deliberate.
+The AI feature is built after the official marks engine exists.
+________________
+
+
+43. AI/OCR Implementation Order
+The AI subsystem should specifically follow:
+M2.1
+AI/OCR processing foundation
+       ↓
+M2.2
+Secure file upload
+       ↓
+M2.3
+OCR + table detection
+       ↓
+M2.4
+Student/marks extraction
+       ↓
+M2.5
+Student matching
+       ↓
+M2.6
+Confidence + validation
+       ↓
+M2.7
+Human review
+       ↓
+M2.8
+Official marks import
+       ↓
+M2.9
+Bulk processing / queues
+This sequence is already reflected in the repository documentation.
+________________
+
+
+44. Definition of Done
+A feature is not "done" merely because the code works locally.
+The eventual definition is:
+Requirement
+   ↓
+Design
+   ↓
+Implementation
+   ↓
+Unit Test
+   ↓
+Integration Test
+   ↓
+API Test
+   ↓
+E2E Test
+   ↓
+Security Test
+   ↓
+Performance Test
+   ↓
+Documentation
+   ↓
+Review
+   ↓
+Staging
+   ↓
+Pilot
+   ↓
+Production
+________________
+
+
+45. Production Readiness
+Production requires evidence for:
+* tests
+* security
+* performance
+* backup
+* restore
+* monitoring
+* alerts
+* runbooks
+* deployment
+* rollback
+* pilot
+* training
+* critical issue resolution
+* documentation synchronization
+Therefore:
+Architecture Complete
+        ≠
+Production Ready
+________________
+
+
+46. Project Governance
+Every future AI working on SchoolOS must follow these rules.
+Rule 1
+Do not invent requirements.
+Rule 2
+Do not change frozen architecture without a documented decision.
+Rule 3
+Do not implement a feature whose requirements are unclear.
+Rule 4
+Do not treat documentation as implementation evidence.
+Rule 5
+Do not allow AI/OCR to bypass the marks engine.
+Rule 6
+Do not break tenant isolation.
+Rule 7
+Do not overwrite historical academic records.
+Rule 8
+Do not silently change result calculations.
+Rule 9
+Every important change must update relevant documentation/tests.
+Rule 10
+Always check the Feature Status Register.
+________________
+
+
+47. Source-of-Truth Hierarchy
+We should use this hierarchy going forward:
+1. Approved Architecture Freeze
+        ↓
+2. Approved ADR / Architecture Decisions
+        ↓
+3. Approved Requirements
+        ↓
+4. Business Rules
+        ↓
+5. API / Database Contracts
+        ↓
+6. Implementation
+        ↓
+7. Supporting Notes / Roadmap
+If two documents conflict:
+Do not guess. Record the conflict and resolve it through change control.
+________________
+
+
+48. Current "Do Not Change" Architecture Principles
+Unless formally reviewed:
+Modular monolith
++
+Next.js
++
+NestJS
++
+PostgreSQL
++
+Prisma
++
+Redis
++
+BullMQ
++
+Worker
++
+FastAPI AI service
++
+Private object storage
+And:
+AI
+ ≠
+Official Marks Authority
+The official marks/result engine remains authoritative.
+________________
+
+
+49. What Is Already Strong Enough
+We do not need to redesign these from scratch:
+Architecture
+🟢 Good direction
+AI safety boundary
+🟢 Good
+Marks lifecycle
+🟢 Good
+Multi-school isolation principle
+🟢 Good
+Historical records
+🟢 Good
+Async worker architecture
+🟢 Good
+Modular monolith
+🟢 Good
+Documentation structure
+🟢 Very strong
+________________
+
+
+50. What Is Currently Being Fixed
+The active work is:
+┌─────────────────────────────────────┐
+│       PHASE 13 REMEDIATION          │
+├─────────────────────────────────────┤
+│                                     │
+│ 🔴 Database contract                │
+│ 🔴 Atomic traceability              │
+│ 🔴 Marks/result policy              │
+│ 🔴 API contracts                    │
+│                                     │
+│ 🟠 Use-case completeness            │
+│ 🟠 Activity/sequence completeness   │
+│ 🟠 Security threat model            │
+│ 🟠 UI screen contracts              │
+│ 🟠 Executable test cases            │
+│                                     │
+└─────────────────────────────────────┘
+________________
+
+
+51. The Exact Workflow From Today
+This is the most important section for any future AI.
+CURRENT
+  │
+  ▼
+PHASE 13 REMEDIATION
+  │
+  ├── CR-01 Database
+  │
+  ├── CR-02 Requirements
+  │
+  ├── CR-04 Result Policy
+  │
+  └── CR-03 API
+  │
+  ▼
+HIGH-PRIORITY REMEDIATION
+  │
+  ├── Use Cases
+  ├── Diagrams
+  ├── Security
+  ├── UI/UX
+  └── Tests
+  │
+  ▼
+FINAL CONSISTENCY AUDIT
+  │
+  ├── Critical = 0
+  ├── High = 0
+  └── Traceability complete
+  │
+  ▼
+🟢 GO
+  │
+  ▼
+PHASE 14
+ARCHITECTURE FREEZE v1.0
+  │
+  ▼
+PHASE 15
+TECHNOLOGY FINALIZATION
+  │
+  ▼
+PHASE 16
+REPOSITORY / ENVIRONMENT FINALIZATION
+  │
+  ▼
+PHASE 17
+CONTROLLED FOUNDATION IMPLEMENTATION
+  │
+  ▼
+CORE MODULE DEVELOPMENT
+  │
+  ▼
+AI/OCR DEVELOPMENT
+  │
+  ▼
+INTEGRATION
+  │
+  ▼
+TESTING
+  │
+  ▼
+STAGING
+  │
+  ▼
+PILOT SCHOOL
+  │
+  ▼
+PRODUCTION
+  │
+  ▼
+CONTINUOUS IMPROVEMENT
+________________
+
+
+52. Current Project Status — One Page
+PROJECT
+SchoolOS
+
+
+PURPOSE
+Intelligent School ERP with AI/OCR marks automation
+
+
+CURRENT STAGE
+Design-Freeze Remediation
+
+
+CURRENT PHASE
+Phase 13 — Final Consistency Audit
+
+
+CURRENT DECISION
+🔴 NO-GO
+
+
+READINESS
+58/100
+
+
+ARCHITECTURE
+🟢 Direction approved
+
+
+DATABASE
+🔴 Needs authoritative final contract
+
+
+API
+🔴 Needs complete contracts
+
+
+SECURITY
+🟠 Needs threat-model completion
+
+
+AI/OCR
+🟢 Architecture approved
+🔴 Implementation deferred
+
+
+MARKS ENGINE
+🟢 Architecture approved
+🔴 Policy precision required
+
+
+UI/UX
+🟠 Screen contracts required
+
+
+TESTING
+🟠 Executable cases required
+
+
+CODING
+🔴 Feature coding NOT authorized
+
+
+NEXT ACTION
+Phase 13 remediation
+
+
+NEXT GATE
+Final consistency audit
+
+
+AFTER PASS
+Architecture Freeze v1.0
+
+
+THEN
+Technology + repository finalization
+
+
+THEN
+Controlled coding
+________________
+
+
+53. Instruction to Any Future AI
+If another AI receives this document, it should begin with:
+"I am working on SchoolOS, an intelligent multi-school school-management platform. The project is currently in Phase 13 Design Review / Final Consistency Audit remediation. Architecture Freeze and feature coding are NOT yet authorized. I must first review the existing authoritative documentation and resolve the outstanding CR/HI findings. I must not redesign the system unnecessarily, invent requirements, or bypass the official marks/result engine with AI/OCR."
+Then it should inspect:
+docs/MASTER_EXECUTION_PROMPT.md
+
+
+docs/design-freeze/
+
+
+docs/architecture/
+
+
+docs/requirements/
+
+
+docs/roadmap/
+before making architectural decisions.
+________________
+
+
+54. The Single Most Important Rule
+The entire project can be summarized by this:
+            REQUIREMENTS
+                  ↓
+             BUSINESS RULES
+                  ↓
+              DATA MODEL
+                  ↓
+             API CONTRACTS
+                  ↓
+              SECURITY
+                  ↓
+             WORKFLOWS
+                  ↓
+                UI
+                  ↓
+               TESTS
+                  ↓
+            IMPLEMENTATION
+                  ↓
+               PILOT
+                  ↓
+             PRODUCTION
+And the AI/OCR branch enters here:
+                   OFFICIAL SYSTEM
+                         ↑
+                         │
+                    HUMAN APPROVAL
+                         ↑
+                         │
+AI/OCR → Extraction → Validation → Review
+Never skip that boundary.
+________________
+
+
+Final conclusion
+Your project is not missing a major architectural concept. The repository is already a serious project foundation with documentation, a monorepo, frontend applications, a NestJS API, worker infrastructure, a FastAPI AI service, Prisma/PostgreSQL schema, Redis/BullMQ, storage, monitoring, and deployment configuration.
+The current task is therefore not "plan the whole project again."
+It is:
+Turn the existing architecture into an implementation-safe, internally consistent, frozen specification.
+The next concrete work item should be CR-01: Authoritative Database / ERD Specification v1.0, followed by atomic requirements traceability, result-policy finalization, and API contracts.
+I would treat this report as the Master Project Context / Handover document going forward. The actual uploaded repository remains the source of the implementation and detailed artifacts; the repository's own master execution prompt also explicitly separates planning/design from implementation and requires the design-review and architecture-freeze gates before feature implementation.
+
+
+Yes. And I want to correct one thing from my previous answer: we should not assume that the previous audit captured every possible gap just because the documentation categories look complete. A proper verification needs to check the project from several independent angles.
+
+I attempted to re-query the uploaded project documentation, but the file index did not return searchable results in this pass. So I cannot honestly claim that I have re-verified every file line-by-line right now. I can, however, give you the exact final verification framework we should apply to the project, and distinguish what is already established from what still needs explicit verification.
+
+🔍 FINAL SCHOOL OS VERIFICATION
+1. What we are verifying
+
+We need to verify six different dimensions, not just the documents:
+
+                    SCHOOL OS
+                       │
+       ┌───────────────┼────────────────┐
+       ↓               ↓                ↓
+   BUSINESS         DESIGN          TECHNICAL
+   CORRECTNESS      CONSISTENCY     CORRECTNESS
+       │               │                │
+       └───────────────┼────────────────┘
+                       ↓
+                 IMPLEMENTATION
+                   READINESS
+                       │
+              ┌────────┴────────┐
+              ↓                 ↓
+           SECURITY          OPERATIONS
+
+And finally:
+
+ALL SIX
+  ↓
+FINAL CONSISTENCY AUDIT
+  ↓
+GO / NO-GO
+2. Business completeness audit
+
+We need to verify that we haven't forgotten an important school operation.
+
+Core school management
+ School registration
+ School settings
+ Academic year
+ Classes
+ Sections
+ Subjects
+ Subject groups
+ Curriculum
+ Grading system
+ Assessment configuration
+ Promotion rules
+Student management
+ Student registration
+ Student profile
+ Student ID
+ Student documents
+ Guardian
+ Multiple guardians
+ Enrollment
+ Transfer
+ Withdrawal
+ Dropout
+ Expulsion
+ Historical enrollment
+ Student status
+Teacher management
+ Teacher profile
+ Qualifications
+ Documents
+ Department
+ Teacher assignment
+ Class responsibility
+ Subject responsibility
+ Teacher status
+Examination
+ Examination creation
+ Examination subjects
+ Assessment components
+ Marks entry
+ Bulk marks
+ Practical marks
+ Internal marks
+ Absence
+ Missing marks
+ Validation
+ Submission
+ Approval
+ Locking
+ Correction
+Result
+ Subject total
+ Weighted calculation
+ Grade
+ GPA
+ Pass/fail
+ Optional subjects
+ Failed subjects
+ Result approval
+ Result snapshot
+ Result publication
+ Historical result preservation
+Documents
+ Marksheet
+ ID card
+ Admit card
+ Certificate
+ Report
+ Notice
+ Template
+ Template versioning
+ Generated-document history
+Communication
+ Notices
+ Notifications
+ Notification status
+ Recipient targeting
+ Delivery history
+3. AI/OCR completeness audit
+
+This is where your project is unique, so we need an especially strict audit.
+
+The complete flow should be:
+
+UPLOAD
+ ↓
+FILE VALIDATION
+ ↓
+MALWARE / SECURITY CHECK
+ ↓
+QUARANTINE
+ ↓
+STORAGE
+ ↓
+JOB CREATION
+ ↓
+QUEUE
+ ↓
+OCR
+ ↓
+IMAGE/TABLE PROCESSING
+ ↓
+EXTRACTION
+ ↓
+NORMALIZATION
+ ↓
+STUDENT MATCHING
+ ↓
+MARK VALIDATION
+ ↓
+CONFIDENCE SCORING
+ ↓
+HUMAN REVIEW
+ ↓
+APPROVAL
+ ↓
+IMPORT
+ ↓
+OFFICIAL MARKS
+
+We must verify all of these:
+
+ PDF
+ image
+ multi-page document
+ poor scan
+ rotated document
+ Nepali text
+ English text
+ mixed language
+ handwritten input if supported
+ table extraction
+ student matching
+ duplicate detection
+ ambiguous matching
+ confidence score
+ validation errors
+ human correction
+ retry
+ failure handling
+ idempotency
+ audit trail
+ model version
+ OCR version
+ pipeline version
+Critical invariant
+AI CANNOT DIRECTLY CREATE PUBLISHED OFFICIAL RESULTS.
+
+That must remain non-negotiable.
+
+4. Data integrity audit
+
+This is one area I would add to our previous audit.
+
+We need to explicitly verify data invariants.
+
+Examples:
+
+Student
+Student must belong to a school.
+Enrollment
+Enrollment must belong to:
+Student + Academic Year + Class + Section
+Teacher assignment
+Teacher
++
+Subject
++
+Class/Section
++
+Academic Context
+Marks
+Marks
+→ Student
+→ Subject
+→ Examination
+→ Academic Context
+Result
+Result
+→ Student
+→ Examination
+→ Policy Version
+AI import
+Import
+→ Source File
+→ Processing Version
+→ Review
+→ Approval
+→ Final Mutation
+
+Every one of these relationships needs database-level protection where appropriate.
+
+5. Concurrency audit
+
+This was not emphasized enough previously.
+
+We need to answer:
+
+What happens if two teachers edit the same marks simultaneously?
+
+Or:
+
+What happens if an administrator approves while a teacher is submitting?
+
+Or:
+
+What happens if the same OCR file is processed twice?
+
+We need explicit rules for:
+
+Optimistic locking
+Transactions
+Unique constraints
+Idempotency keys
+Job deduplication
+Race-condition handling
+Lock state
+
+This is particularly important for marks.
+
+6. Historical-data audit
+
+The system must never accidentally destroy academic history.
+
+Example:
+
+2026
+Grade 8
+Mathematics
+72
+
+must remain historically tied to its original configuration.
+
+If the school changes:
+
+Mathematics
+Maximum = 100
+
+to:
+
+Mathematics
+Maximum = 80
+
+the old result must not magically recalculate.
+
+Therefore we need:
+
+Historical Result
+      ↓
+Original Policy Version
+      ↓
+Original Academic Context
+      ↓
+Immutable Snapshot
+
+This needs explicit verification.
+
+7. Configuration audit
+
+Schools can customize the system.
+
+That creates a major requirement:
+
+Configuration must not become uncontrolled business logic.
+
+We need to verify:
+
+School Configuration
+       ↓
+Validation
+       ↓
+Version
+       ↓
+Approval
+       ↓
+Activation
+       ↓
+Used by system
+
+This applies to:
+
+grading
+marks
+components
+subjects
+optional subjects
+result rules
+document templates
+school settings
+permissions
+8. Permission audit
+
+We have RBAC, but we should verify scope, not just role.
+
+For example:
+
+Teacher
+
+should not mean:
+
+can edit every mark in the school
+
+Instead:
+
+Teacher
+ ↓
+Assigned Class
+ ↓
+Assigned Subject
+ ↓
+Assigned Examination
+ ↓
+Authorized Marks
+
+Likewise:
+
+School Admin
+
+must not automatically imply access to another school's data.
+
+9. Tenant-isolation audit
+
+This deserves its own penetration-test category.
+
+Test:
+
+School A user
+        ↓
+attempts School B student ID
+
+Expected:
+
+DENIED
+
+Test through:
+
+UI
+API
+direct ID manipulation
+search
+reports
+document URLs
+downloads
+background jobs
+imports
+notifications
+
+This is one of the most important security tests in the whole system.
+
+10. File-security audit
+
+Because the project handles uploaded documents, verify:
+
+File type validation
+Size limits
+Page limits
+Filename sanitization
+Malware scanning
+Private storage
+Signed URLs
+Access expiration
+Quarantine
+Processing timeout
+Archive-bomb protection
+Duplicate detection
+Retention
+Deletion
+
+Do not allow:
+
+Public URL → private student document
+11. API audit
+
+Every API should ultimately be checked against:
+
+Authentication
+Authorization
+Tenant scope
+Input validation
+Output filtering
+Pagination
+Rate limiting
+Idempotency
+Concurrency
+Transaction
+Audit
+Error contract
+Logging
+
+And importantly:
+
+No API should expose database models directly as its public contract.
+
+12. Frontend audit
+
+We should verify every major screen has:
+
+Loading
+Empty
+Success
+Error
+Permission denied
+Validation error
+Network failure
+Session expiration
+Unsaved changes
+
+For example, Marks Entry needs:
+
+Loading marks
+No students
+Student absent
+Invalid mark
+Locked examination
+Submission successful
+Submission failed
+Concurrent modification
+Permission denied
+13. Background-job audit
+
+Every worker job needs:
+
+Created
+Queued
+Running
+Completed
+Failed
+Retrying
+Dead-lettered
+Cancelled
+
+And:
+
+Retry count
+Error
+Started at
+Completed at
+Job ID
+Request ID
+Actor
+School
+
+This is especially important for OCR and document generation.
+
+14. Disaster-recovery audit
+
+We need to verify not only:
+
+"Do we have backups?"
+
+but:
+
+"Can we actually restore the system?"
+
+Required:
+
+Database backup
+Object-storage backup
+Configuration backup
+Restore procedure
+Restore test
+Recovery Point Objective
+Recovery Time Objective
+Disaster procedure
+Rollback procedure
+
+A backup that has never been restored is not proven reliable.
+
+15. Deployment audit
+
+Before production:
+
+Development
+ ↓
+Testing
+ ↓
+Staging
+ ↓
+Pilot
+ ↓
+Production
+
+Each environment needs different:
+
+credentials
+database
+storage
+AI configuration
+logging
+monitoring
+secrets
+
+No production secret should be stored in the source repository.
+
+16. Observability audit
+
+We need to be able to answer:
+
+"A teacher uploaded a marksheet and it failed. What happened?"
+
+The answer should be traceable:
+
+User
+ ↓
+Request ID
+ ↓
+Upload ID
+ ↓
+Import ID
+ ↓
+Job ID
+ ↓
+Worker
+ ↓
+OCR
+ ↓
+Validation
+ ↓
+Review
+ ↓
+Approval
+ ↓
+Database
+ ↓
+Audit
+
+Without this, debugging production AI workflows becomes extremely difficult.
+
+17. Performance audit
+
+This was another area I would explicitly add.
+
+We should define expected scale.
+
+For example:
+
+Schools
+Students / school
+Teachers / school
+Concurrent users
+Marks rows
+Documents
+OCR jobs
+Daily uploads
+Peak examination traffic
+
+Then test:
+
+100 students
+1,000 students
+10,000 students
+100,000+ records
+
+where appropriate.
+
+Especially:
+
+Bulk marks upload
+100 students
+1,000 students
+10,000 students
+Result generation
+whole class
+whole grade
+whole school
+18. Cost-control audit
+
+AI introduces a new operational dimension.
+
+We need:
+
+Maximum file size
+Maximum pages
+Maximum OCR attempts
+Maximum AI retries
+Maximum tokens
+Per-job timeout
+Per-school quota
+Cost monitoring
+
+Otherwise a malformed upload could generate excessive processing.
+
+19. Privacy/data-governance audit
+
+Because this is student information, verify:
+
+ minimum data collection
+ access control
+ audit logging
+ retention
+ deletion
+ export
+ backup
+ document privacy
+ AI-provider data handling
+ administrator access
+ support access
+ data-processing boundaries
+
+This should be explicit in the design.
+
+20. Accessibility audit
+
+Verify:
+
+Keyboard navigation
+Screen-reader compatibility
+Focus management
+Contrast
+Error messages
+Form labels
+Tables
+Dialogs
+Responsive layout
+
+And connect each to test cases.
+
+21. Internationalization / localization audit
+
+Because this is a Nepal-focused system, I would explicitly verify:
+
+English
+Nepali
+AD date
+BS date
+Number formatting
+Nepali names
+Nepali text OCR
+Mixed Nepali/English documents
+Timezone
+
+And importantly:
+
+AD and BS dates should be stored/handled consistently rather than becoming arbitrary formatted strings.
+
+22. Audit-log integrity
+
+Another area to explicitly verify:
+
+Can an administrator:
+
+edit audit log?
+delete audit log?
+change timestamp?
+
+The answer should be appropriately restricted.
+
+Audit records should be designed so that normal application users cannot rewrite history.
+
+23. Result-correction audit
+
+This is a major school-system workflow.
+
+Suppose a result has already been:
+
+APPROVED
+LOCKED
+PUBLISHED
+
+and a teacher discovers an error.
+
+We need:
+
+Correction Request
+       ↓
+Authorization
+       ↓
+Reason
+       ↓
+Change
+       ↓
+Recalculation
+       ↓
+Approval
+       ↓
+New Snapshot
+       ↓
+Audit
+       ↓
+Republish
+
+Never:
+
+UPDATE published_result
+
+without controlled history.
+
+24. Document authenticity
+
+We should also verify whether official generated documents need:
+
+document ID
+verification code
+QR code
+generation timestamp
+template version
+result snapshot reference
+verification page/API
+
+This is particularly useful for marksheets and certificates.
+
+If not part of MVP, it should at least be recorded as a deliberate future decision—not accidentally forgotten.
+
+25. Notifications
+
+We should verify:
+
+Notification
+ ↓
+Recipient
+ ↓
+Channel
+ ↓
+Template
+ ↓
+Delivery
+ ↓
+Status
+ ↓
+Retry
+
+Possible channels can remain configurable.
+
+The architecture should not hard-code one notification provider.
+
+26. Reporting
+
+We should explicitly distinguish:
+
+Operational reports
+Analytical reports
+Official reports
+Export reports
+
+Official reports should use authoritative snapshots rather than unstable live calculations.
+
+27. Import/export
+
+We should define:
+
+CSV
+Excel
+PDF
+JSON
+
+where applicable.
+
+And every import should have:
+
+Validation
+Preview
+Error report
+Rollback
+Audit
+Idempotency
+28. Upgrade/migration strategy
+
+The system will evolve.
+
+We therefore need:
+
+Database migration
+API versioning
+Document-template versioning
+Result-policy versioning
+OCR pipeline versioning
+Configuration versioning
+
+The system must support upgrades without destroying historical records.
+
+29. Feature-status governance
+
+Every feature should eventually be represented as:
+
+PLANNED
+DESIGNED
+IN DEVELOPMENT
+IMPLEMENTED
+TESTED
+STAGING
+PILOT
+PRODUCTION
+DEPRECATED
+
+This prevents the common mistake:
+
+"We wrote the API, therefore the feature is complete."
+
+30. Documentation synchronization
+
+For every significant implementation change:
+
+Code change
+ ↓
+Requirement?
+ ↓
+API?
+ ↓
+DB?
+ ↓
+Security?
+ ↓
+Test?
+ ↓
+Documentation?
+
+If architecture changes:
+
+ADR
++
+Architecture
++
+Diagrams
++
+API
++
+Database
++
+Tests
+
+must be reviewed.
+
+31. What I think we previously under-emphasized
+
+After reviewing the complete conceptual system, these are the additional areas I would now explicitly put into the final audit checklist:
+
+🔴 Critical
+Concurrency / race conditions
+Data invariants
+Published-result correction workflow
+Tenant-isolation penetration testing
+Production secret management
+Backup restoration proof
+🟠 High
+Performance/load model
+AI cost controls
+File-security model
+Privacy/data governance
+Notification architecture
+Import/export governance
+Document authenticity/verification
+Environment separation
+Migration/upgrade strategy
+Observability across asynchronous jobs
+Configuration-change governance
+API/database contract synchronization
+🟡 Important
+AD/BS localization
+Accessibility
+Browser/device matrix
+Golden OCR dataset
+Feature lifecycle/status governance
+Documentation synchronization
+32. But there is an important distinction
+
+These findings do not mean we should create another enormous planning phase.
+
+Some are:
+
+Design requirements
+
+They must be specified.
+
+Others are:
+
+Implementation requirements
+
+They can be handled during coding.
+
+Others are:
+
+Testing requirements
+
+They need to become test cases.
+
+Others are:
+
+Production/operations requirements
+
+They belong in deployment/readiness.
+
+So we should not turn everything into another document before writing any code.
+
+33. Final classification
+
+I would now use this:
+
+Category	Current situation
+Business concept	🟢 Strong
+Major modules	🟢 Strong
+Architecture direction	🟢 Strong
+AI/OCR concept	🟢 Strong
+Database concept	🟠 Needs contract
+API concept	🟠 Needs contract
+Result engine	🟠 Needs exact policy
+Requirements traceability	🟠 Needs atomic mapping
+Security	🟠 Needs deeper verification
+Concurrency	🟠 Needs specification
+Performance	🟠 Needs targets
+Disaster recovery	🟠 Needs verification
+Privacy	🟠 Needs explicit policy
+UI/UX	🟠 Needs screen contracts
+Testing	🟠 Needs executable cases
+Production operations	🟠 Needs readiness work
+Feature coding	🔴 Not yet authorized
+34. The final gate we should use
+
+I recommend we change our definition of "ready to freeze."
+
+Architecture Freeze should require:
+
+                    PHASE 13
+                       │
+        ┌──────────────┼──────────────┐
+        ↓              ↓              ↓
+   Requirements     Business       Database
+     COMPLETE        Rules         COMPLETE
+        │              │              │
+        └──────────────┼──────────────┘
+                       ↓
+                 API CONTRACTS
+                       ↓
+                 SECURITY MODEL
+                       ↓
+                AI/OCR MODEL
+                       ↓
+                 UI CONTRACTS
+                       ↓
+                  TEST PLAN
+                       ↓
+             TRACEABILITY CHECK
+                       ↓
+             CONSISTENCY CHECK
+                       ↓
+          OPERATIONAL READINESS
+                       ↓
+                  FINAL AUDIT
+                       ↓
+               🔴 NO-GO / 🟢 GO
+35. And the most important correction
+
+We should not say "everything is verified" yet.
+
+The correct status is:
+
+The project has been extensively planned and partially audited, but the final verification is still in progress.
+
+The previous 58/100 should therefore be treated as the current audit baseline, not a final project-quality score.
+
+Once we perform the actual final consistency verification across the authoritative files, we can produce:
+
+PHASE-13-FINAL-CONSISTENCY-AUDIT-v1.0
+
+with:
+
+CRITICAL FINDINGS: 0
+HIGH FINDINGS:     0
+MEDIUM FINDINGS:   documented/accepted
+TRACEABILITY:      100%
+ORPHAN REQUIREMENTS: 0
+ORPHAN API CONTRACTS: 0
+ORPHAN TESTS:       0
+DB/API mismatch:    0
+SECURITY blockers:  0
+ARCHITECTURE contradictions: 0
+
+Only then should we issue:
+
+🟢 ARCHITECTURE FREEZE v1.0
+
+and move toward coding.
+
+So, did we miss things?
+
+Yes — the main things I would add are concurrency, data invariants, result-correction, performance/scalability, disaster-recovery proof, privacy/data governance, file security, cost controls, localization, and production-operational verification.
+
+But no major business module appears to require us to restart the project. The next step is to turn this expanded checklist into the actual verification matrix against your ZIP, rather than continuing to brainstorm additional features.
+
+is there everything you have said or something is missing?
+
+Almost. We have covered the major areas, but I would not yet say "100% complete." There are a few final categories that should be explicitly added to our master checklist so that we don't discover them after coding starts.
+
+Final completeness check
+
+I would now consider the project to have these 20 verification areas:
+
+#	Area	Status
+1	Product scope & SRS	🟢
+2	Requirements matrix & traceability	🟠
+3	Use cases	🟠
+4	Activity diagrams	🟠
+5	Sequence diagrams	🟠
+6	Database / ERD / data dictionary	🟠
+7	Business rules	🟠
+8	Marks & result engine	🔴
+9	API contracts	🔴
+10	System architecture	🟢
+11	Authentication / RBAC / tenancy	🟢/🟠
+12	AI/OCR architecture	🟢
+13	UI/UX specification	🟠
+14	Testing	🟠
+15	Security / threat model	🟠
+16	Performance / scalability	🟠
+17	Deployment / DevOps / DR	🟠
+18	Privacy / data governance	🟠
+19	Observability / operations	🟠
+20	Documentation / governance / change control	🟠
+
+But there are six additional things I would explicitly add.
+
+21. 🔴 Auditability & Evidence
+
+We have audit logs, but we should define evidence requirements.
+
+For important actions, we should be able to prove:
+
+WHO
+ ↓
+DID WHAT
+ ↓
+TO WHICH RECORD
+ ↓
+WHEN
+ ↓
+UNDER WHICH SCHOOL
+ ↓
+USING WHICH VERSION
+ ↓
+FROM WHICH REQUEST/JOB
+ ↓
+WHAT WAS THE RESULT
+
+Especially:
+
+marks changes
+approvals
+result publication
+AI imports
+configuration changes
+user/permission changes
+
+This is slightly different from simply having an AuditLog table.
+
+22. 🔴 Business Continuity
+
+We have disaster recovery, but business continuity is broader.
+
+We should define what the school does if:
+
+Internet unavailable
+API unavailable
+Database unavailable
+AI unavailable
+Storage unavailable
+Email/SMS unavailable
+
+For example:
+
+If AI is unavailable, teachers must still be able to enter marks manually.
+
+That is an important architectural principle.
+
+AI FAILURE
+    ↓
+MANUAL WORKFLOW
+    ↓
+SCHOOL CAN CONTINUE
+
+AI should be an accelerator, not a single point of failure.
+
+23. 🔴 Dependency Failure Strategy
+
+Every external dependency needs a failure policy.
+
+For example:
+
+Redis down
+→ API should not necessarily lose existing data
+
+AI service down
+→ OCR jobs wait/retry
+
+Storage unavailable
+→ upload fails safely
+
+Email provider down
+→ notification retries
+
+Database unavailable
+→ application enters controlled failure state
+
+We need:
+
+Timeout
+Retry
+Backoff
+Circuit breaker where appropriate
+Dead-letter handling
+Fallback
+User-visible error
+24. 🟠 Search / Filtering Architecture
+
+This can become a major issue once the school has thousands of students.
+
+We need to define how users search:
+
+Student name
+Roll number
+Student ID
+Class
+Section
+Academic year
+Teacher
+Subject
+Exam
+
+And determine:
+
+pagination
+filtering
+sorting
+indexing
+search behavior
+partial matching
+Nepali text handling
+
+We don't necessarily need Elasticsearch/OpenSearch.
+
+PostgreSQL may be enough initially.
+
+But this should be a deliberate decision, not something discovered after performance problems appear.
+
+25. 🟠 Bulk-operation architecture
+
+Your system is specifically intended to process large batches.
+
+Therefore we need a common bulk-operation pattern:
+
+Bulk Request
+ ↓
+Validate
+ ↓
+Create Job
+ ↓
+Process
+ ↓
+Progress
+ ↓
+Success/Failure counts
+ ↓
+Error report
+ ↓
+Retry failed items
+ ↓
+Audit
+
+This should be reused for:
+
+student imports
+marks imports
+OCR
+document generation
+report generation
+exports
+
+Instead of every module inventing its own bulk-processing mechanism.
+
+26. 🟠 User Experience for Long Operations
+
+This is easy to overlook.
+
+For something like:
+
+Generate marksheets for 2,000 students
+
+we should not keep the browser waiting.
+
+Instead:
+
+START
+ ↓
+JOB CREATED
+ ↓
+PROCESSING 35%
+ ↓
+PROCESSING 72%
+ ↓
+COMPLETED
+ ↓
+DOWNLOAD
+
+The same applies to AI/OCR.
+
+27. One final architectural concern: modular boundaries
+
+We have identified the modules, but before freeze we should explicitly define:
+
+Which module owns which data and business rules?
+
+For example:
+
+Student Module
+    owns student identity
+
+Academic Module
+    owns class/section/subject configuration
+
+Examination Module
+    owns examination definitions
+
+Marks Module
+    owns mark-entry lifecycle
+
+Result Module
+    owns calculation/publication
+
+Document Module
+    owns document generation
+
+AI Import Module
+    owns staged extraction/import
+
+Notification Module
+    owns notification delivery
+
+Then:
+
+A module should not directly modify another module's internal tables/business state without going through an approved interface.
+
+This will prevent the modular monolith from slowly turning into a tangled monolith.
+
+So, is anything else missing?
+
+After adding those six, I would say:
+
+🟢 We have a sufficiently complete planning universe.
+
+Not literally "nothing could ever be added"—software projects always evolve—but there is no obvious major planning category that we need to invent before proceeding.
+
+Our complete architecture/planning universe is now:
+
+PRODUCT
+├── SRS
+├── Requirements
+├── Business Rules
+├── Use Cases
+├── Activity Diagrams
+├── Sequence Diagrams
+│
+DATABASE
+├── ERD
+├── Data Dictionary
+├── Constraints
+├── Indexes
+├── Versioning
+├── Migrations
+│
+ARCHITECTURE
+├── Frontend
+├── Backend
+├── Modules
+├── Module Boundaries
+├── Worker
+├── Queue
+├── AI Service
+├── Storage
+├── External Services
+│
+SECURITY
+├── Authentication
+├── Authorization
+├── RBAC
+├── Tenant Isolation
+├── Threat Model
+├── File Security
+├── Secrets
+├── Privacy
+├── Audit
+├── Evidence
+│
+ACADEMIC ENGINE
+├── Marks
+├── Assessment
+├── Grading
+├── GPA
+├── Pass/Fail
+├── Absence
+├── Approval
+├── Locking
+├── Correction
+├── Result Snapshot
+│
+AI/OCR
+├── Upload
+├── OCR
+├── Extraction
+├── Matching
+├── Confidence
+├── Validation
+├── Human Review
+├── Approval
+├── Import
+├── Versioning
+├── Golden Dataset
+├── Cost Controls
+│
+UI/UX
+├── Screens
+├── Permissions
+├── Forms
+├── States
+├── Errors
+├── Accessibility
+├── Responsive Design
+├── Localization
+│
+API
+├── Endpoints
+├── Schemas
+├── Errors
+├── Auth
+├── Permissions
+├── Pagination
+├── Idempotency
+├── Concurrency
+│
+OPERATIONS
+├── Logging
+├── Monitoring
+├── Metrics
+├── Tracing
+├── Backups
+├── Restore
+├── DR
+├── Business Continuity
+├── Dependency Failure
+├── Deployment
+├── Rollback
+│
+QUALITY
+├── Unit Tests
+├── Integration Tests
+├── API Tests
+├── E2E
+├── Security
+├── Performance
+├── Load
+├── AI Accuracy
+├── Regression
+│
+GOVERNANCE
+├── ADR
+├── Change Control
+├── Source of Truth
+├── Feature Status
+├── Versioning
+├── Documentation Sync
+└── Release Management
+And this is our final workflow
+                    CURRENT
+                       │
+                       ▼
+             PHASE 13 REMEDIATION
+                       │
+          ┌────────────┼────────────┐
+          ▼            ▼            ▼
+       DATABASE    REQUIREMENTS   RESULT
+          │            │          POLICY
+          └────────────┼────────────┘
+                       ▼
+                  API CONTRACT
+                       │
+                       ▼
+              SECURITY + MODULES
+                       │
+                       ▼
+              AI/OCR + UI + TESTS
+                       │
+                       ▼
+             FINAL CONSISTENCY AUDIT
+                       │
+                ┌──────┴──────┐
+                │             │
+               NO            YES
+                │             │
+                ▼             ▼
+           REMEDIATION       🟢 GO
+                              │
+                              ▼
+                    ARCHITECTURE FREEZE
+                         v1.0
+                              │
+                              ▼
+                     TECHNOLOGY FREEZE
+                              │
+                              ▼
+                   REPOSITORY FINALIZATION
+                              │
+                              ▼
+                       ★ CODING ★
+                              │
+                              ▼
+                       CORE MODULES
+                              │
+                              ▼
+                        AI/OCR
+                              │
+                              ▼
+                     INTEGRATION TEST
+                              │
+                              ▼
+                          STAGING
+                              │
+                              ▼
+                           PILOT
+                              │
+                              ▼
+                        PRODUCTION
+My recommendation now
+
+Stop adding new planning categories. We have reached the point of diminishing returns.
+
+The next job should be to take this complete checklist + your actual project files and perform the true final consistency audit, item by item:
+
+Present in document? → Correct? → Consistent? → Implementable? → Traceable? → Tested? → Any contradiction?
+
+Then we produce a definitive:
+
+PHASE_13_FINAL_CONSISTENCY_AUDIT_v1.0
+
+with every finding classified as PASS / FAIL / NEEDS-REMEDIATION / ACCEPTED-RISK.
+
+That is the appropriate final step before we freeze the architecture.

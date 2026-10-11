@@ -1,0 +1,42 @@
+{
+  "name": "@schoolos/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node ../../scripts/run-local-app.mjs API_PORT 4000 tsx watch src/main.ts",
+    "build": "nest build",
+    "start": "node ../../scripts/run-local-app.mjs API_PORT 4000 node dist/main.js",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/swagger": "^11.4.6",
+    "@nestjs/throttler": "^6.0.0",
+    "@node-rs/argon2": "^2.0.2",
+    "@prisma/client": "^5.21.1",
+    "@schoolos/config": "workspace:*",
+    "@schoolos/database": "workspace:*",
+    "@schoolos/logger": "workspace:*",
+    "@schoolos/utils": "workspace:*",
+    "@schoolos/validation": "workspace:*",
+    "@types/ua-parser-js": "^0.7.39",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "cookie-parser": "^1.4.7",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "ua-parser-js": "^2.0.10",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@types/cookie-parser": "^1.4.7",
+    "@types/express": "^5.0.6",
+    "tsx": "^4.19.2"
+  }
+}

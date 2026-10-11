@@ -1,0 +1,18 @@
+model File {
+  id           String    @id @default(uuid())
+  schoolId     String    @map("school_id")
+  storageKey   String    @map("storage_key")
+  originalName String    @map("original_name")
+  mimeType     String    @map("mime_type")
+  sizeBytes    Int       @map("size_bytes")
+  checksum     String?
+  uploadedById String    @map("uploaded_by_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+
+  @@unique([schoolId, storageKey])
+  @@index([schoolId])
+  @@index([uploadedById])
+  @@map("files")
+}

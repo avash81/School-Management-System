@@ -1,0 +1,7 @@
+{
+  "name": "@schoolos/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "../../tsconfig.base.json"
+}

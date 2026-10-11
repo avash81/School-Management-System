@@ -1,0 +1,116 @@
+enum StudentStatus {
+  applied
+  admitted
+  enrolled
+  active
+  transferred
+  graduated
+  dropped
+  expelled
+  archived
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum EnrollmentStatus {
+  active
+  completed
+  transferred
+  dropped
+  expelled
+  withdrawn
+}
+
+model Student {
+  id             String         @id @default(uuid())
+  schoolId       String         @map("school_id")
+  academicId     String         @map("academic_id")
+  admissionNo    String         @map("admission_no")
+  firstName      String         @map("first_name")
+  middleName     String?        @map("middle_name")
+  lastName       String         @map("last_name")
+  preferredName  String?        @map("preferred_name")
+  dateOfBirth    DateTime?      @map("date_of_birth")
+  gender         Gender?
+  phone          String?
+  email          String?
+  currentAddress String?        @map("current_address")
+  permanentAddress String?      @map("permanent_address")
+  status         StudentStatus   @default(applied)
+  admissionDate  DateTime?      @map("admission_date")
+  lastLoginAt    DateTime?      @map("last_login_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@unique([schoolId, admissionNo])
+  @@unique([schoolId, academicId])
+  @@index([schoolId])
+  @@index([schoolId, status])
+  @@map("students")
+}
+
+model Guardian {
+  id            String    @id @default(uuid())
+  schoolId      String    @map("school_id")
+  name          String
+  relationship  String
+  phone         String?
+  email         String?
+  occupation    String?
+  address       String?
+  emergencyContact String? @map("emergency_contact")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  deletedAt     DateTime? @map("deleted_at")
+
+  @@index([schoolId])
+  @@map("guardians")
+}
+
+model StudentGuardian {
+  id          String    @id @default(uuid())
+  schoolId    String    @map("school_id")
+  studentId   String    @map("student_id")
+  guardianId  String    @map("guardian_id")
+  isPrimary   Boolean   @default(false) @map("is_primary")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@unique([studentId, guardianId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([guardianId])
+  @@map("student_guardians")
+}
+
+model Enrollment {
+  id               String    @id @default(uuid())
+  schoolId         String    @map("school_id")
+  studentId        String    @map("student_id")
+  academicYearId   String    @map("academic_year_id")
+  classId          String    @map("class_id")
+  sectionId        String    @map("section_id")
+  rollNumber       String?      @map("roll_number")
+  status           EnrollmentStatus @default(active)
+  promotedFromId   String?   @map("promoted_from_id")
+  enrolledAt       DateTime  @default(now()) @map("enrolled_at")
+  endedAt          DateTime? @map("ended_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+
+  @@unique([academicYearId, classId, sectionId, rollNumber])
+  @@unique([studentId, academicYearId])
+  @@index([schoolId])
+  @@index([studentId])
+  @@index([academicYearId])
+  @@index([classId])
+  @@index([sectionId])
+  @@map("enrollments")
+}

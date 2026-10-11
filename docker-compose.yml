@@ -1,0 +1,125 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: schoolos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: schoolos
+      POSTGRES_USER: schoolos
+      POSTGRES_PASSWORD: schoolos
+      TZ: UTC
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      - -c
+      - timezone=UTC
+      - -c
+      - max_connections=200
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - schoolos-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U schoolos -d schoolos']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: schoolos-redis
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+    networks:
+      - schoolos-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: schoolos-minio
+    restart: unless-stopped
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: schoolos
+      MINIO_ROOT_PASSWORD: schoolossecret
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio-data:/data
+    networks:
+      - schoolos-network
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: schoolos-minio-init
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://minio:9000 schoolos schoolossecret; do sleep 2; done &&
+      mc mb -p local/student-photos || true &&
+      mc mb -p local/school-logos || true &&
+      mc mb -p local/report-cards || true &&
+      mc mb -p local/admit-cards || true &&
+      mc mb -p local/certificates || true &&
+      mc mb -p local/uploads || true &&
+      mc mb -p local/temp || true
+      "
+    networks:
+      - schoolos-network
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: schoolos-mailpit
+    restart: unless-stopped
+    ports:
+      - '8025:8025'
+      - '1025:1025'
+    networks:
+      - schoolos-network
+
+  ai-service:
+    build:
+      context: ./apps/ai-service
+      dockerfile: Dockerfile
+    container_name: schoolos-ai-service
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://schoolos:schoolos@postgres:5432/schoolos?schema=public
+      REDIS_URL: redis://redis:6379
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_USE_SSL: 'false'
+      MINIO_ACCESS_KEY: schoolos
+      MINIO_SECRET_KEY: schoolossecret
+      MINIO_BUCKET: schoolos
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+      - redis
+      - minio
+    networks:
+      - schoolos-network
+
+volumes:
+  postgres-data:
+  redis-data:
+  minio-data:
+
+networks:
+  schoolos-network:
+    name: schoolos-network
+    driver: bridge
